@@ -1,0 +1,79 @@
+#include <string>
+#include "json.hpp"
+#include "Node.h"
+
+using json = nlohmann::json;
+using namespace std;
+
+enum msgType{BLOCK,TX,MERKLEBLOCK,FILTER,ERROR};
+#define ST_BLOCK "/eda_coin/send_block/" 
+#define ST_TX "/eda_coin/send_tx/"
+#define ST_MERKLEBLOCK "/eda_coin/send_merkle_block/"
+#define ST_FILTER "/eda_coin/send_filter/"
+#define ST_BLOCKHEADER "get_block_" 
+
+
+msgType parsePOSTURL(string url) {
+	msgType ret = ERROR;
+	
+	if (size_t pos = url.find('/') <= 15 && pos != string::npos) {
+		if (url.find(ST_BLOCK, pos)!= string::npos) {
+			ret = BLOCK;
+		}
+		if (url.find(ST_TX, pos) != string::npos) {
+			ret = TX;
+		}
+		if (url.find(ST_MERKLEBLOCK, pos) != string::npos) {
+			ret = MERKLEBLOCK;
+		}
+		if (url.find(ST_FILTER, pos) != string::npos) {
+			ret = FILTER;
+		}
+	}
+
+	return ret;
+
+}
+
+string parseGETURL(string url) {
+	string blockid;
+	size_t pos;
+	//
+	size_t npos;
+	//
+	if ((pos = url.find(ST_BLOCKHEADER) + 11) != (npos + 11)) {
+		blockid = url.substr(pos);
+		
+	}
+}
+
+json manageInfo(string recieveInfo) {
+	string sub(recieveInfo, 0, 4);
+	size_t finishpos = recieveInfo.find("HTTP") - 2;
+	string url = recieveInfo.substr(4, finishpos - 5);
+	
+	if (sub.compare("POST") == 0) {
+		switch (parsePOSTURL(url)) {
+		case BLOCK: 
+			generateBlockJson();
+			break;
+		
+		case TX:
+			generateTx();
+			break;
+		case MERKLEBLOCK:
+			generateMerkleBlock();
+			break;
+		case FILTER:
+			generateFilter();
+			break;
+		case ERROR:
+			break;
+
+		}
+	}
+	else if (sub.compare("GET ") == 0) {
+		string blockId = parseGETURL(url);
+	}
+
+}

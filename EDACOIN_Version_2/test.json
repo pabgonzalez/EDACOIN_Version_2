@@ -1,0 +1,80 @@
+[
+  {
+    "tx": [
+      {
+        "txid": "284EC3E5",
+        "nTxin": "2",
+        "vin": [
+          {
+            "blockid": "18CDA93",
+            "txid": "284EC3E5"
+          }
+        ],
+        "nTxout": "2",
+        "vout": [
+          {
+            "publicid": "string",
+            "amount": "number"
+          }
+        ]
+      },
+      {
+        "txid": "8D7D6267",
+        "nTxin": "3",
+        "vin": [
+          {
+            "blockid": "18CDA93",
+            "txid": "8D7D6267"
+          }
+        ],
+        "nTxout": "3",
+        "vout": [
+          {
+            "publicid": "string",
+            "amount": "number"
+          }
+        ]
+      },
+      {
+        "txid": "A044FAE9",
+        "nTxin": "5",
+        "vin": [
+          {
+            "blockid": "18CDA93",
+            "txid": "A044FAE9"
+          }
+        ],
+        "nTxout": "5",
+        "vout": [
+          {
+            "publicid": "string",
+            "amount": "number"
+          }
+        ]
+      },
+      {
+        "txid": "CB43567A",
+        "nTxin": "5",
+        "vin": [
+          {
+            "blockid": "18CDA93",
+            "txid": "CB43567A"
+          }
+        ],
+        "nTxout": "1",
+        "vout": [
+          {
+            "publicid": "string",
+            "amount": "number"
+          }
+        ]
+      }
+    ],
+    "height": "0",
+    "nonce": "2318",
+    "blockid": "18CDA93",
+    "previousblockid": "00000000",
+    "merkleroot": "EF1B16FC",
+    "nTx": "4"
+  }
+]

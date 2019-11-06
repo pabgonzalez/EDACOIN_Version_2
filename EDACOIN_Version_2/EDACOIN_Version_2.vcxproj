@@ -123,6 +123,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="BlockchainModel.h" />
+    <ClInclude Include="BlockViewerController.h" />
+    <ClInclude Include="Controller.h" />
+    <ClInclude Include="imconfig.h" />
+    <ClInclude Include="imconfig_allegro5.h" />
+    <ClInclude Include="imgui.h" />
+    <ClInclude Include="ImGuiController.h" />
+    <ClInclude Include="ImGuiObserverManager.h" />
+    <ClInclude Include="ImGuiViewer.h" />
+    <ClInclude Include="imgui_impl_allegro5.h" />
+    <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="imstb_rectpack.h" />
+    <ClInclude Include="imstb_textedit.h" />
+    <ClInclude Include="imstb_truetype.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="JsonController.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="Observer.h" />
+    <ClInclude Include="ObserverManager.h" />
+    <ClInclude Include="Subject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="BlockchainModel.cpp" />
+    <ClCompile Include="BlockViewerController.cpp" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="ImGuiController.cpp" />
+    <ClCompile Include="ImGuiObserverManager.cpp" />
+    <ClCompile Include="ImGuiViewer.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_allegro5.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
+    <ClCompile Include="JsonController.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
