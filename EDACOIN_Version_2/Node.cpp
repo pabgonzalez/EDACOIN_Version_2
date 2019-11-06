@@ -82,31 +82,76 @@ json Node::generateFilter() {
 	return j;
 }
 
-json Node:: generateBlockHeader(string blockid)
+json Node::generateBlockJson(string blockid) 
 {
 	json j;
-	//for (int i = 0; (blockChain.getBlockId(i) != blockid) && (i < blockChain.getBlockchainSize()); i++)
-	for (int i = 0;  (i < 1); i++)
-	//{
-	//	j = {
-	//			{ "height" , blockChain.getBlockHeight(i) },
-	//			{ "nonce" , blockChain.getBlockNonce(i) },
-	//			{ "blockid" , blockChain.getBlockId(i) },
-	//			{ "previousblockid" , blockChain.getPreviousBlockId(i) },
-	//			{ "merkleroot" , blockChain.getBlockMerkleRoot(i) },
-	//			{ "nTx" , blockChain.getBlockTransactionNumber(i) }
-	//	};
-	//}
+	return j
+}
+
+json Node::generateMerkleBlock(string blockid , string txid)
+{
+	int indexB, indexT;
+	for ( indexB = 0; indexB < blockChain.getBlockchainSize(); indexB++)
 	{
-		j = {
-				{ "height" , 12 },
-				{ "nonce" , 13 },
-				{ "blockid" , "block" },
-				{ "previousblockid" , "block-1" },
-				{ "merkleroot" , "12345678" },
-				{ "nTx" , 1 }
-		};
+		if (blockid == blockChain.getBlockId(indexB))
+		{
+			for (indexT = 0; indexT < blockChain.getBlockTransactionNumber(indexB); indexT++)
+			{
+				if (txid == blockChain.getTxInBlock(indexB, indexT).txid)
+				{
+
+				}
+			}
+		}
 	}
-	cout << j;
+	json j;
+	j["blockid"] = blockid;
+	j["tx"] = generateTx( blockChain.getTxInBlock(indexB,indexT) );
+	j["txPos"] = indexT+1;	//o indexT capaz
+	for (int i = 0; i < blockChain.getMerkleTree(indexB).size(); i++)	//aca no estoy seguro
+	{
+		j["merklePath"] += { {"Id", "1234"} };
+	}
+	return j;
+}
+
+json Node::generateTx(Transaction tx)
+{
+	json j;
+
+	j["txid"] = tx.txid;
+	j["nTxin"] = tx.nTxin;
+	for (int i = 0; i < tx.nTxin; i++)
+	{
+		j["vin"] += { {"blockid", tx.vin[i].blockid}, { "txid", tx.vin[i].txid } };
+	}
+	j["nTxout"] = tx.nTxout;
+	for (int i = 0; i < tx.nTxout; i++)
+	{
+		j["vout"] += { {"publicid", tx.vout[i].publicid}, { "amount", tx.vout[i].amount } };
+	}
+	return j;
+}
+
+//generateBlockHeader genera un json (array de objectos), donde cada objeto es el header de cada bloque hasta el indicado por blockid
+json Node:: generateBlockHeader(string blockid)
+{
+	// create JSON 
+	json j;
+	for (int i = 0; (blockChain.getBlockId(i) != blockid) && (i < blockChain.getBlockchainSize()); i++) 
+	{
+		// add values
+		j += { 
+				{ "height", blockChain.getBlockHeight(i) }, 
+				{ "nonce", blockChain.getBlockNonce(i) },
+				{ "blockid", blockChain.getBlockId(i) },
+				{ "previousblockid", blockChain.getPreviousBlockId(i) },
+				{ "merkleroot", blockChain.getBlockMerkleRoot(i) },
+				{ "nTx", blockChain.getBlockTransactionNumber(i) }
+			};
+	}
+	// print values
+	cout << j << endl;
+
 	return j;
 }

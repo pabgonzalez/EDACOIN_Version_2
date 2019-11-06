@@ -19,7 +19,7 @@ class Transaction {
 public:
 	void appendVin(vinType v);
 	void appendVout(voutType v);
-private:
+//private:
 	string txid;
 	int nTxin;
 	vector<vinType> vin;
@@ -36,6 +36,9 @@ public:
 
 	//in JSON
 	vector<string> vtx;			//vector de transacciones
+	//
+	vector<Transaction> vTx;
+	//
 	int height;					//número de bloque
 	int nonce;
 	string blockid;

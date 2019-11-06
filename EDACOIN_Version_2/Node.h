@@ -45,7 +45,7 @@ public:
 
 	//writers
 	json generateBlockJson(string blockid);
-	json generateMerkleBlock(string blockid);
+	json generateMerkleBlock(string blockid, string txid);
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);

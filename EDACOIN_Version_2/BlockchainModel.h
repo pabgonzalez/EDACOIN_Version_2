@@ -54,6 +54,9 @@ public:
 	bool getBlockShowingTree(int i) { return blockchain[i].showingTree; }
 	vector<MerkleNode> getMerkleTree(int i) { return trees[blockchain[i].MerkleTree]; }
 	bool getFileSelected() { return fileSelected; }
+	//
+	Transaction getTxInBlock(int b, int t) { return blockchain[b].vTx[t]; }
+	//
 
 	void setFileIndex(int fileIndex);
 	void setFiles(vector<path> files);
