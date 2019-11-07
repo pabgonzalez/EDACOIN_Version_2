@@ -85,7 +85,7 @@ json Node::generateFilter() {
 json Node::generateBlockJson(string blockid) 
 {
 	json j;
-	return j
+	return j;
 }
 
 json Node::generateMerkleBlock(string blockid , string txid)
