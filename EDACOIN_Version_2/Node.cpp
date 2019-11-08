@@ -37,9 +37,9 @@ void Node::sendBlock(string nodeid, string blockid) {
 		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
 		curl_easy_setopt(curl, CURLOPT_URL, url+ "/eda_coin/send_block/");
 		string aux = j;
-		//curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
 		//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, postCallback);
-		//curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);
 		if (res != CURLE_OK)
