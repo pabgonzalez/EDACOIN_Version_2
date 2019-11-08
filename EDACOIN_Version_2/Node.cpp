@@ -24,7 +24,7 @@ int Node::getNodePort() {
 void Node::setNodeSocket(SocketType s){
 	socket = s;
 }
-void Node::appendNeighbourSocket(string nID, SocketType nS){
+void Node::appendNeighbourNode(string nID, SocketType nS){
 	neighbourNodes.insert(pair<string, SocketType>(nID, nS));
 }
 

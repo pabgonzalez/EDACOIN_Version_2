@@ -22,9 +22,11 @@ typedef struct {
 class Node : public Subject
 {
 public:
+	//constructores
 	Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes = {} );
+	
+	//destructores
 	~Node();
-	//appendNeighbourNode()
 	
 	//getters
 	string getNodeIP();
@@ -37,7 +39,9 @@ public:
 
 	//setters
 	void setNodeSocket(SocketType socket);
-	void appendNeighbourSocket(string neighbourID, SocketType neighbourSocket);
+	
+	//appenders
+	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
 	
 	//writers
 	json generateBlockJson(string blockid);
