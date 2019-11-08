@@ -84,13 +84,29 @@ SocketType Node::getNeighbourSockets(string id) {
 json Node::generateFilter() {
 	json j;
 	j["Id"] = ID;
-	//cout << j;
 	return j;
 }
 
 json Node::generateBlockJson(string blockid) 
 {
+	int b;
+	for (b = 0; b < blockChain.getBlockchainSize(); b++)
+	{
+		if (blockChain.getBlockId(b) == blockid) { break; }
+	}
+
 	json j;
+	for (int t = 0; t < blockChain.getBlockTransactionNumber(b); t++)
+	{
+		j["tx"] += generateTx(blockChain.getTxInBlock(b, t));
+	}
+	
+	j["height"] = blockChain.getBlockHeight(b);
+	j["nonce"] = blockChain.getBlockNonce(b);
+	j["blockid"] = blockid;
+	j["previousblockid"] = blockChain.getPreviousBlockId(b);
+	j["merkleroot"] = blockChain.getBlockMerkleRoot(b);
+	j["nTx"] = blockChain.getBlockTransactionNumber(b);
 	return j;
 }
 
