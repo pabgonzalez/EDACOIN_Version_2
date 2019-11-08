@@ -21,6 +21,12 @@ string Node::getNodeIP() {
 int Node::getNodePort() {
 	return socket.port;
 }
+void Node::setNodeSocket(SocketType s){
+	socket = s;
+}
+void Node::appendNeighbourSocket(string nID, SocketType nS){
+	neighbourNodes.insert(pair<string, SocketType>(nID, nS));
+}
 
 void Node::sendBlock(string nodeid, string blockid) {
 	json j = generateBlockJson(blockid);
