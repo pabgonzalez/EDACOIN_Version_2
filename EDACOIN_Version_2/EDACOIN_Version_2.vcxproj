@@ -127,6 +127,7 @@
     <ClInclude Include="BlockchainModel.h" />
     <ClInclude Include="BlockViewerController.h" />
     <ClInclude Include="Controller.h" />
+    <ClInclude Include="FullNode.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imconfig_allegro5.h" />
     <ClInclude Include="imgui.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Node.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="ObserverManager.h" />
+    <ClInclude Include="SPVNode.h" />
     <ClInclude Include="Subject.h" />
   </ItemGroup>
   <ItemGroup>
