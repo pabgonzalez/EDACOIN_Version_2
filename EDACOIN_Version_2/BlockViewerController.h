@@ -12,6 +12,9 @@ using namespace std;
 class BlockViewerController :public Controller {
 public:
 	BlockViewerController(BlockchainModel& modelo) :Controller(modelo) {}
+	//
+	BlockViewerController(ALLEGRO_DISPLAY** disp, BlockchainModel& modelo);
+	//
 	void update(void*);
 	void cycle(void);
 

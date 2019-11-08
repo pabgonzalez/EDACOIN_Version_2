@@ -13,32 +13,55 @@
 using namespace std;
 using namespace boost::filesystem;
 
-//int main() {
-//	ImGuiObserverManager obsManager;
-//	if (obsManager.getError() == false)
-//	{
-//		BlockchainModel model;
-//		BlockViewerController blockViewerControl(model);
-//		JsonController jsonControl(model);
-//		ImGuiViewer view;
-//		model.attach(view);
-//		model.attach(blockViewerControl);
-//		model.attach(jsonControl);
-//		obsManager.addObserver(&blockViewerControl);
-//		obsManager.addObserver(&view);
-//
-//		while (obsManager.getExit() == false) {
-//			obsManager.cycle();
-//			jsonControl.cycle();
-//		}
-//	}
-//	else
-//		char c = getchar();
-//}
+int main() {
+	ImGuiObserverManager obsManager;
+	if (obsManager.getError() == false)
+	{
+		BlockchainModel model;
+		BlockViewerController blockViewerControl(model);
+		JsonController jsonControl(model);
+		ImGuiViewer view;
+		model.attach(view);
+		model.attach(blockViewerControl);
+		model.attach(jsonControl);
+		obsManager.addObserver(&blockViewerControl);
+		obsManager.addObserver(&view);
 
-int main()
-{
-	SocketType s = {"IP", 22};
-	Node n(s, "myNode");
-	n.generateBlockHeader("bID");
+		while (obsManager.getExit() == false) {
+			obsManager.cycle();
+			jsonControl.cycle();
+		}
+	}
+	else
+		char c = getchar();
 }
+
+//int main()
+//{
+//	SocketType s = {"IP", 22};
+//	Node n(s, "myNode");
+//	MerkleNode n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13;
+//	n1.level = n2.level = n3.level = n4.level = n5.level = n6.level = 3;
+//	n7.level = n8.level = n9.level = n10.level = 2;
+//	n11.level = n12.level = 1;
+//	n13.level = 0;
+//	n1.newIDstr = "a";
+//	n2.newIDstr = "b";
+//	n3.newIDstr = "c";
+//	n4.newIDstr = "d";
+//	n5.newIDstr = "e";
+//	n6.newIDstr = "f";
+//	n7.newIDstr = "g";
+//	n8.newIDstr = "h";
+//	n9.newIDstr = "i";
+//	n10.newIDstr = "j";
+//	n11.newIDstr = "k";
+//	n12.newIDstr = "l";
+//	n13.newIDstr = "m";
+//	vector<MerkleNode> v = { n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13 };
+//	vector<string> out = n.recursiveMerkleBlock(v, 2);
+//	for (int i = 0; i < out.size(); i++)
+//	{
+//		cout << out[i] << endl;
+//	}
+//}

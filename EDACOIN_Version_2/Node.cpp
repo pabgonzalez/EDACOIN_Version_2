@@ -97,22 +97,42 @@ json Node::generateMerkleBlock(string blockid , string txid)
 		{
 			for (indexT = 0; indexT < blockChain.getBlockTransactionNumber(indexB); indexT++)
 			{
-				if (txid == blockChain.getTxInBlock(indexB, indexT).txid)
-				{
-
-				}
+				if (txid == blockChain.getTxInBlock(indexB, indexT).txid) { break; }
 			}
+			break;
 		}
 	}
 	json j;
 	j["blockid"] = blockid;
 	j["tx"] = generateTx( blockChain.getTxInBlock(indexB,indexT) );
-	j["txPos"] = indexT+1;	//o indexT capaz
-	for (int i = 0; i < blockChain.getMerkleTree(indexB).size(); i++)	//aca no estoy seguro
+	j["txPos"] = indexT;	//las tx empiezan en pos 0
+
+	vector<string> Ids = recursiveMerkleBlock( blockChain.getMerkleTree(indexB), indexT);	//arbol de bloque
+	for (int i = 0; i < Ids.size(); i++)
 	{
-		j["merklePath"] += { {"Id", "1234"} };
+		j["merklePath"] += { {"Id", Ids[i]} };
 	}
+
 	return j;
+}
+
+vector<string> Node:: recursiveMerkleBlock(vector<MerkleNode> t, int pos)
+{
+	static vector<string> Ids;
+	static int level = t[0].level;
+
+	if (level == 0) { return Ids; }
+	//int subpos = pos / 2;	//pos in next level
+	int nextPos;
+	
+	(pos % 2) ? Ids.push_back(t[pos - 1].newIDstr) : Ids.push_back(t[pos + 1].newIDstr);
+	
+	while (t[0].level == level) { t.erase(t.begin()); }
+
+	level--;	//paso al siguiente nivel
+
+	//(pos % 2) ? (nextPos = pos / 2 - 1) : (nextPos = pos / 2 + 1);
+	return recursiveMerkleBlock(t, pos/2);
 }
 
 json Node::generateTx(Transaction tx)

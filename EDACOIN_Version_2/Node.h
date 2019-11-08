@@ -49,7 +49,11 @@ public:
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);
+
+	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);//private
 private:
+	
+
 	string ID;
 	SocketType socket;
 	map<string,SocketType> neighbourNodes;

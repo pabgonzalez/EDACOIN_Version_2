@@ -6,6 +6,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
+#include "json.hpp"
 
 #define FIN_IMGUI ALLEGRO_EVENT_DISPLAY_CLOSE
 #define NO_EVENT ALLEGRO_EVENT_MOUSE_BUTTON_UP
