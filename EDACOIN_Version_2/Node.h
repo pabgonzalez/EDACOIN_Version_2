@@ -36,13 +36,9 @@ public:
 	void sendTx(string nodeid, Transaction tx);
 
 	//setters
-	bool setNodeIP();
-	bool setNodePort();
-	bool setNeighbourSockets();
+	void setNodeSocket(SocketType socket);
+	void appendNeighbourSocket(string neighbourID, SocketType neighbourSocket);
 	
-	//boost
-
-
 	//writers
 	json generateBlockJson(string blockid);
 	json generateMerkleBlock(string blockid, string txid);
