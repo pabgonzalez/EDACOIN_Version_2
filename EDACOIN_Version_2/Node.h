@@ -46,9 +46,9 @@ public:
 	json generateFilter();
 	json generateTx(Transaction tx);
 
-	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);//private
-private:
 	
+private:
+	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
 	string ID;
 	SocketType socket;

@@ -124,20 +124,17 @@ json Node::generateMerkleBlock(string blockid , string txid)
 
 vector<string> Node:: recursiveMerkleBlock(vector<MerkleNode> t, int pos)
 {
-	static vector<string> Ids;
-	static int level = t[0].level;
+	static vector<string> Ids;			//vector de IDstring de los nodos necesarios
+	static int level = t[0].level;		//nivel actual
 
-	if (level == 0) { return Ids; }
-	//int subpos = pos / 2;	//pos in next level
-	int nextPos;
+	if (level == 0) { return Ids; }		//
 	
-	(pos % 2) ? Ids.push_back(t[pos - 1].newIDstr) : Ids.push_back(t[pos + 1].newIDstr);
+	(pos % 2) ? Ids.push_back(t[pos - 1].newIDstr) : Ids.push_back(t[pos + 1].newIDstr);	//guardo el IDstring respectivo
 	
-	while (t[0].level == level) { t.erase(t.begin()); }
+	while (t[0].level == level) { t.erase(t.begin()); }	//borro el nivel actual
 
 	level--;	//paso al siguiente nivel
 
-	//(pos % 2) ? (nextPos = pos / 2 - 1) : (nextPos = pos / 2 + 1);
 	return recursiveMerkleBlock(t, pos/2);
 }
 
