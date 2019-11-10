@@ -9,11 +9,13 @@
 #include "Node.h"
 #include <cstdlib>
 #include <ctime>
+#include <time.h>
 
 using namespace std;
 using namespace boost::filesystem;
 
 int main() {
+	srand(time(NULL));
 	ImGuiObserverManager obsManager;
 	if (obsManager.getError() == false)
 	{

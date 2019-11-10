@@ -23,7 +23,7 @@ class Node : public Subject
 {
 public:
 	//constructores
-	Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes = {} );
+	Node(SocketType socket = {"", 0}, string ID = "", map<string, SocketType> neighbourNodes = {});
 	
 	//destructores
 	~Node();
