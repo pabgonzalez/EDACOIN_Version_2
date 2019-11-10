@@ -23,18 +23,24 @@ int main() {
 		BlockchainModel model;
 		BlockViewerController blockViewerControl(model);
 		JsonController jsonControl(model);
-		NodeController nodeControl;
 		ImGuiViewer view;
 		model.attach(view);
 		model.attach(blockViewerControl);
 		model.attach(jsonControl);
+
+		NodeController nodeControl;
+		FullNode full1({ "127.0.0.1", 10000 });
+		FullNode full2({ "127.0.0.1", 10001 });
+		nodeControl.addNode(&full1);
+		nodeControl.addNode(&full2);
+
 		obsManager.addObserver(&blockViewerControl);
 		obsManager.addObserver(&view);
+		obsManager.addObserver(&nodeControl);
 
 		while (obsManager.getExit() == false) {
 			obsManager.cycle();
 			jsonControl.cycle();
-			nodeControl.cycle();
 		}
 	}
 	else

@@ -11,7 +11,7 @@ typedef enum { IDLE, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NETWORK_CREATED
 class FullNode : public Node
 {
 public:
-	FullNode();
+	FullNode(SocketType socket = { "", 0 }, string ID = "", map<string, SocketType> neighbourNodes = {});
 	~FullNode();
 	void p2pNetFSM();
 

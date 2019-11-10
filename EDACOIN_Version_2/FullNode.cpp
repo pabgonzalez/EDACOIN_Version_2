@@ -6,7 +6,8 @@
 
 using namespace std;
 
-FullNode::FullNode() {
+FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes):
+Node(socket, ID, neighbourNodes){
 	pingStatus = false;
 	timer = (rand() % 999) * 10 + 10;;
 	state = IDLE;
@@ -18,7 +19,7 @@ FullNode::FullNode() {
 	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
 	serverAcceptor = new boost::asio::ip::tcp::acceptor(*IO_Handler, ep);
 	serverAcceptor->non_blocking(true);
-	serverSocket->non_blocking(true);
+	//serverSocket->non_blocking(true);
 	readingRequest = false;
 	writingResponse = false;
 	request = Request();
@@ -82,7 +83,7 @@ void FullNode::readRequest() {
 }
 
 void FullNode::readHandler(const boost::system::error_code& error, std::size_t len) {
-	if (error.value() != WSAEWOULDBLOCK) {
+	if (len < 1) {
 		request.handleRequest(buf, len);
 		memset(buf, 0, 512 - 1);
 
@@ -99,7 +100,7 @@ void FullNode::readHandler(const boost::system::error_code& error, std::size_t l
 }
 
 void FullNode::writeHandler(const boost::system::error_code& error, std::size_t len) {
-	if (error.value() != WSAEWOULDBLOCK) {
+	if (len < 1) {
 		writingResponse = false;
 	}
 }

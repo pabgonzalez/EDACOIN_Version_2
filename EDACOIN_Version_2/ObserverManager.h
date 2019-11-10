@@ -19,8 +19,6 @@ public:
 	void addObserver(Observer* o);
 	void removeObserver(int i);
 	bool getError() { return error; }
-
-	void run();
 private:
 	bool allegroInit();
 	void allegroDestroy();
