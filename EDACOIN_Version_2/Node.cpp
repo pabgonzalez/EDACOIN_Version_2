@@ -40,7 +40,10 @@ void Node::sendBlock(string nodeid, string blockid) {
 		curl_easy_setopt(curl, CURLOPT_URL, url+ "/eda_coin/send_block/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
+
+		auto callback = bind(&Node::writeCallback, this);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);
@@ -60,7 +63,10 @@ void Node::sendTx(string nodeid, Transaction tx) {
 		curl_easy_setopt(curl, CURLOPT_URL, url + "/eda_coin/send_tx/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
+		
+		auto callback = bind(&Node::writeCallback, this);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);

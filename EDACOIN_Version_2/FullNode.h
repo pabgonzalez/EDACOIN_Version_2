@@ -15,9 +15,9 @@ public:
 	~FullNode();
 	void p2pNetFSM();
 
-	boost::system::error_code acceptConnection();
-	boost::system::error_code writeResponse();
-	boost::system::error_code readRequest();
+	void acceptConnection();
+	void writeResponse();
+	void readRequest();
 private:
 	bool pingStatus;
 	unsigned timer;
@@ -32,4 +32,6 @@ private:
 	boost::asio::io_service* IO_Handler;
 	boost::asio::ip::tcp::socket* serverSocket;
 	boost::asio::ip::tcp::acceptor* serverAcceptor;
+	void readHandler(const boost::system::error_code& error, std::size_t len);
+	void writeHandler(const boost::system::error_code& error, std::size_t len);
 };
