@@ -6,7 +6,8 @@
 #include "JsonController.h"
 #include "ImGuiViewer.h"
 #include "ImGuiObserverManager.h"
-#include "Node.h"
+#include "FullNode.h"
+#include "SPVNode.h"
 #include <cstdlib>
 #include <ctime>
 #include <time.h>
@@ -14,29 +15,29 @@
 using namespace std;
 using namespace boost::filesystem;
 
-int main() {
-	srand(time(NULL));
-	ImGuiObserverManager obsManager;
-	if (obsManager.getError() == false)
-	{
-		BlockchainModel model;
-		BlockViewerController blockViewerControl(model);
-		JsonController jsonControl(model);
-		ImGuiViewer view;
-		model.attach(view);
-		model.attach(blockViewerControl);
-		model.attach(jsonControl);
-		obsManager.addObserver(&blockViewerControl);
-		obsManager.addObserver(&view);
-
-		while (obsManager.getExit() == false) {
-			obsManager.cycle();
-			jsonControl.cycle();
-		}
-	}
-	else
-		char c = getchar();
-}
+//int main() {
+//	srand(time(NULL));
+//	ImGuiObserverManager obsManager;
+//	if (obsManager.getError() == false)
+//	{
+//		BlockchainModel model;
+//		BlockViewerController blockViewerControl(model);
+//		JsonController jsonControl(model);
+//		ImGuiViewer view;
+//		model.attach(view);
+//		model.attach(blockViewerControl);
+//		model.attach(jsonControl);
+//		obsManager.addObserver(&blockViewerControl);
+//		obsManager.addObserver(&view);
+//
+//		while (obsManager.getExit() == false) {
+//			obsManager.cycle();
+//			jsonControl.cycle();
+//		}
+//	}
+//	else
+//		char c = getchar();
+//}
 
 //int main()
 //{
@@ -67,3 +68,10 @@ int main() {
 //		cout << out[i] << endl;
 //	}
 //}
+
+int main() {
+	srand(time(NULL));
+	map<string, SocketType> m = { {"id1", {"1", 1}}, {"id2", {"2", 2}}, {"id3", {"3", 3}}, {"id4", {"4", 4}}, {"id5", {"5", 5}} };
+	FullNode fn({"0", 0}, "id0", m);
+	vector<vector<bool>> v = fn.p2pAlgorithm(m);
+}

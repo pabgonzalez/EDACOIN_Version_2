@@ -51,7 +51,7 @@ public:
 	json generateTx(Transaction tx);
 
 	
-private:
+protected:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
 	string ID;
