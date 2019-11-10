@@ -151,6 +151,7 @@
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="BlockchainModel.cpp" />
     <ClCompile Include="BlockViewerController.cpp" />
+    <ClCompile Include="FullNode.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="ImGuiController.cpp" />
     <ClCompile Include="ImGuiObserverManager.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="JsonController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="SPVNode.cpp" />
     <ClCompile Include="Subject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
