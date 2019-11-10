@@ -10,6 +10,7 @@
 #include "BlockchainModel.h"
 #define CURL_STATICLIB
 #include <curl\curl.h>
+
 using namespace std;
 using json = nlohmann::json;
 
@@ -48,7 +49,6 @@ public:
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);
-
 	
 private:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);

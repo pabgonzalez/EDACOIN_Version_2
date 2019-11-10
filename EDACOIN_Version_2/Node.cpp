@@ -10,38 +10,10 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 	//Client
 	httpResponse = "";
 	curl_global_init(CURL_GLOBAL_ALL);
-
-	//Server
-	IO_Handler = new boost::asio::io_service();
-	//Creo el endpoint para recibir conexiones
-	boost::asio::ip::tcp::endpoint ep(boost::asio::ip::tcp::v4(), socket.port);
-	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
-	serverAcceptor = new boost::asio::ip::tcp::acceptor(*IO_Handler, ep);
 }
 
 Node::~Node() {
 	curl_global_cleanup();
-	serverAcceptor->close();
-	serverSocket->close();
-	delete serverAcceptor;
-	delete serverSocket;
-	delete IO_Handler;
-}
-
-string Node::startConection() {
-	serverAcceptor->accept(*serverSocket);
-	serverSocket->non_blocking(true);
-
-	/*serverAcceptor->non_blocking(true);
-	boost::system::error_code error;
-	do
-	{
-		serverAcceptor->accept(*serverSocket,error);
-	}
-	while ((error.value() == EWOULDBLOCK));
-	if (error)
-		std::cout << "Error while trying to listen to "<<  HTTP_PORT << "Port " << error.message() << std::endl;
-	*/
 }
 
 string Node::getNodeIP() {
@@ -68,7 +40,7 @@ void Node::sendBlock(string nodeid, string blockid) {
 		curl_easy_setopt(curl, CURLOPT_URL, url+ "/eda_coin/send_block/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);
@@ -88,7 +60,7 @@ void Node::sendTx(string nodeid, Transaction tx) {
 		curl_easy_setopt(curl, CURLOPT_URL, url + "/eda_coin/send_tx/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);

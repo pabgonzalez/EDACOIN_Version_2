@@ -4,6 +4,7 @@
 #include "BlockchainModel.h"
 #include "BlockViewerController.h"
 #include "JsonController.h"
+#include "NodeController.h"
 #include "ImGuiViewer.h"
 #include "ImGuiObserverManager.h"
 #include "Node.h"
@@ -22,6 +23,7 @@ int main() {
 		BlockchainModel model;
 		BlockViewerController blockViewerControl(model);
 		JsonController jsonControl(model);
+		NodeController nodeControl;
 		ImGuiViewer view;
 		model.attach(view);
 		model.attach(blockViewerControl);
@@ -32,6 +34,7 @@ int main() {
 		while (obsManager.getExit() == false) {
 			obsManager.cycle();
 			jsonControl.cycle();
+			nodeControl.cycle();
 		}
 	}
 	else

@@ -96,6 +96,15 @@
     <ClInclude Include="FullNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ServerResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerRequest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp">
@@ -147,6 +156,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FullNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerResponse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
