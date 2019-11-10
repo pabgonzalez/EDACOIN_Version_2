@@ -10,7 +10,6 @@
 #include "BlockchainModel.h"
 #define CURL_STATICLIB
 #include <curl\curl.h>
-
 using namespace std;
 using json = nlohmann::json;
 
@@ -59,7 +58,9 @@ private:
 	map<string,SocketType> neighbourNodes;
 	BlockchainModel blockChain;
 
+	//Client side
 	CURL* curl;
 	string callbackData;
-	size_t postCallback(char* contents, size_t size, size_t nmemb, void* userData);
+	string httpResponse;
+	size_t writeCallback(char* contents, size_t size, size_t nmemb, void* userData);
 };

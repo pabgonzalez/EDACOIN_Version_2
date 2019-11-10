@@ -1,15 +1,19 @@
 #pragma once
 #include "Node.h"
-
-typedef enum {IDLE, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NETWORK_CREATED} p2pState;
+#include <boost/asio.hpp>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 class FullNode : public Node
 {
 public:
 	FullNode();
-	void p2pNetFSM();
+	~FullNode();
+	void peer2peerNetFSM();
 private:
-	bool pingStatus;
-	unsigned timer;
-	p2pState state;
+
+	//Server side
+	boost::asio::io_service* IO_Handler;
+	boost::asio::ip::tcp::socket* serverSocket;
+	boost::asio::ip::tcp::acceptor* serverAcceptor;
 };
