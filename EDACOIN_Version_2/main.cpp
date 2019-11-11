@@ -80,7 +80,8 @@ using namespace boost::filesystem;
 
 int main() {
 	srand(time(NULL));
-	map<string, SocketType> m = { {"id1", {"1", 1}}, {"id2", {"2", 2}}, {"id3", {"3", 3}}, {"id4", {"4", 4}}, {"id5", {"5", 5}} };
+	map<string, SocketType> m = { {"id1", {"1", 1}}, {"id2", {"2", 2}}, {"id3", {"3", 3}}, {"id4", {"4", 4}},
+	{"id5", {"5", 5}}, {"id6", {"6", 6}}, {"id7", {"7", 7}}, {"id8", {"8", 8}}, {"id9", {"9", 9}} };
 	FullNode fn({"0", 0}, "id0", m);
 	vector<vector<bool>> v = fn.p2pAlgorithm(m);
 }

@@ -28,6 +28,8 @@ private:
 	int checkStrongConnections(vector<vector<bool>> matrix, int n);
 	int countConnections(vector<vector<bool>> m, int i);
 	bool checkFull(vector<vector<bool>> m, int n, int i);
+	bool checkFullRare(vector<vector<bool>> m, int n, int i);
+	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
 	bool pingStatus;
 	unsigned timer;
 	p2pState state;

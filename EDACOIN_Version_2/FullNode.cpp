@@ -76,12 +76,28 @@ vector<vector<bool>> FullNode::p2pRecursive(vector<string>& IDs)
 	{
 		unsigned i = rand() % IDs.size(), j = i;
 		cout << i << endl;
-		if (countConnections(adjacencyMatrix, i) < 2)	//si tiene menos de dos conexiones le busco una nuevo conexión
+		if (countConnections(adjacencyMatrix, i) <= 2)	//si tiene menos de dos conexiones le busco una nuevo conexión
 		{
-			while (j == i || adjacencyMatrix[i][j] == true || countConnections(adjacencyMatrix, j) >= 2)
+			while (j == i || adjacencyMatrix[i][j] == true || countConnections(adjacencyMatrix, j) > 3)
 			{
 				j = rand() % IDs.size();
 				if (checkFull(adjacencyMatrix, IDs.size(), i) == true)
+				{
+					if (j != i && adjacencyMatrix[i][j] == false)
+					{
+						adjacencyMatrix[i][j] = true;
+						break;
+					}
+				}
+				else if (checkFullRare(adjacencyMatrix, IDs.size(), i) == true)
+				{
+					if (j != i && adjacencyMatrix[i][j] == false)
+					{
+						adjacencyMatrix[i][j] = true;
+						break;
+					}
+				}
+				else if (checkFullEpic(adjacencyMatrix, IDs.size(), i) == true)
 				{
 					if (j != i && adjacencyMatrix[i][j] == false)
 					{
@@ -128,7 +144,7 @@ bool FullNode::checkFull(vector<vector<bool>> m, int n, int i)
 {
 	for (int k = 0; k < n; k++)
 	{
-		if (m[i][k] == false && countConnections(m, k) < 2)
+		if (m[i][k] == false && countConnections(m, k) <= 2)
 		{
 			return false;
 		}
@@ -136,6 +152,29 @@ bool FullNode::checkFull(vector<vector<bool>> m, int n, int i)
 	return true;
 }
 
+bool FullNode::checkFullRare(vector<vector<bool>> m, int n, int i)
+{
+	for (int k = 0; k < n; k++)
+	{
+		if (m[i][k] == false && countConnections(m, k) <= 3)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool FullNode::checkFullEpic(vector<vector<bool>> m, int n, int i)
+{
+	for (int k = 0; k < n; k++)
+	{
+		if (m[i][k] == false && countConnections(m, k) <= 4)
+		{
+			return false;
+		}
+	}
+	return true;
+}
 
 int FullNode::countConnections(vector<vector<bool>> m, int i)
 {
