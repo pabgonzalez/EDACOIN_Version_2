@@ -49,7 +49,6 @@ public:
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);
-
 	
 protected:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
@@ -59,7 +58,9 @@ protected:
 	map<string,SocketType> neighbourNodes;
 	BlockchainModel blockChain;
 
+	//Client side
 	CURL* curl;
 	string callbackData;
-	size_t postCallback(char* contents, size_t size, size_t nmemb, void* userData);
+	string httpResponse;
+	size_t writeCallback(char* contents, size_t size, size_t nmemb, void* userData);
 };

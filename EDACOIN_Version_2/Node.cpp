@@ -7,6 +7,8 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 	this->neighbourNodes = neighbourNodes;
 	this->ID = ID;
 
+	//Client
+	httpResponse = "";
 	curl_global_init(CURL_GLOBAL_ALL);
 }
 
@@ -38,7 +40,10 @@ void Node::sendBlock(string nodeid, string blockid) {
 		curl_easy_setopt(curl, CURLOPT_URL, url+ "/eda_coin/send_block/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, postCallback);
+
+		auto callback = bind(&Node::writeCallback, this);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);
@@ -58,7 +63,10 @@ void Node::sendTx(string nodeid, Transaction tx) {
 		curl_easy_setopt(curl, CURLOPT_URL, url + "/eda_coin/send_tx/");
 		string aux = j;
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		//curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, postCallback);
+		
+		auto callback = bind(&Node::writeCallback, this);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
 
 		res = curl_easy_perform(curl);
@@ -66,6 +74,17 @@ void Node::sendTx(string nodeid, Transaction tx) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		curl_easy_cleanup(curl);
 	}
+}
+
+size_t Node::writeCallback(char* contents, size_t size, size_t nmemb, void* userData)
+{
+	size_t realSize = size * nmemb;
+	char* data = (char*)contents;
+	string* s = (string*)userData;
+	s->append(data, realSize);
+	httpResponse += data;
+
+	return realSize;
 }
 
 SocketType Node::getNeighbourSockets(string id) {

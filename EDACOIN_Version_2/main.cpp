@@ -4,6 +4,7 @@
 #include "BlockchainModel.h"
 #include "BlockViewerController.h"
 #include "JsonController.h"
+#include "NodeController.h"
 #include "ImGuiViewer.h"
 #include "ImGuiObserverManager.h"
 #include "FullNode.h"
@@ -15,29 +16,37 @@
 using namespace std;
 using namespace boost::filesystem;
 
-//int main() {
-//	srand(time(NULL));
-//	ImGuiObserverManager obsManager;
-//	if (obsManager.getError() == false)
-//	{
-//		BlockchainModel model;
-//		BlockViewerController blockViewerControl(model);
-//		JsonController jsonControl(model);
-//		ImGuiViewer view;
-//		model.attach(view);
-//		model.attach(blockViewerControl);
-//		model.attach(jsonControl);
-//		obsManager.addObserver(&blockViewerControl);
-//		obsManager.addObserver(&view);
-//
-//		while (obsManager.getExit() == false) {
-//			obsManager.cycle();
-//			jsonControl.cycle();
-//		}
-//	}
-//	else
-//		char c = getchar();
-//}
+int main() {
+	srand(time(NULL));
+	ImGuiObserverManager obsManager;
+	if (obsManager.getError() == false)
+	{
+		BlockchainModel model;
+		BlockViewerController blockViewerControl(model);
+		JsonController jsonControl(model);
+		ImGuiViewer view;
+		model.attach(view);
+		model.attach(blockViewerControl);
+		model.attach(jsonControl);
+
+		NodeController nodeControl;
+		FullNode full1({ "127.0.0.1", 10000 });
+		FullNode full2({ "127.0.0.1", 10001 });
+		nodeControl.addNode(&full1);
+		nodeControl.addNode(&full2);
+
+		obsManager.addObserver(&blockViewerControl);
+		obsManager.addObserver(&view);
+		obsManager.addObserver(&nodeControl);
+
+		while (obsManager.getExit() == false) {
+			obsManager.cycle();
+			jsonControl.cycle();
+		}
+	}
+	else
+		char c = getchar();
+}
 
 //int main()
 //{
