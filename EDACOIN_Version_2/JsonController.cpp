@@ -53,10 +53,13 @@ void JsonController::saveBlocksFromJson(json j) {
 	}
 }
 
-vector<string> JsonController::createTxArray(json j)
+vector<Transaction> JsonController::createTxArray(json j)
 {
-	vector<string> vTx;
-	vector<string> strSum;
+	vector<Transaction> vTx;
+	
+	//TO-DO
+
+	/*vector<string> strSum;
 	for (auto& element : j)
 	{
 		string concatenatedIds = "";
@@ -66,5 +69,6 @@ vector<string> JsonController::createTxArray(json j)
 		}
 		vTx.push_back(concatenatedIds);
 	}
+	*/
 	return vTx;
 }

@@ -18,11 +18,11 @@ void BlockchainModel::setFiles(vector<path> files) {
 	notifyAllObservers();
 }
 
-void BlockchainModel::appendBlock(vector<string> vtx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx)
+void BlockchainModel::appendBlock(vector<Transaction> vTx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx)
 {
-	Block block(vtx, height, nonce, blockid, previousblockid, merkleroot, nTx);
+	Block block(vTx, height, nonce, blockid, previousblockid, merkleroot, nTx);
 
-	block.MerkleTree = createTree(vtx);
+	block.MerkleTree = createTree(vTx);
 
 	if (trees[block.MerkleTree].size() > 0)
 		block.calculatedMerkleRoot = trees[block.MerkleTree].back().newIDstr;
@@ -96,19 +96,20 @@ void BlockchainModel::restart(void)
 	notifyAllObservers();
 }
 
-int BlockchainModel::createTree(vector<string> vtx)
+int BlockchainModel::createTree(vector<Transaction> vTx)
 {
-	int index = convertTransactionsToMerkleLeafs(vtx);
+	int index = convertTransactionsToMerkleLeafs(vTx);
 	trees.back() = propagateTreeUp(trees.back(), trees.back());
 	return index;
 }
 
-int BlockchainModel::convertTransactionsToMerkleLeafs(vector<string> vtx)
+int BlockchainModel::convertTransactionsToMerkleLeafs(vector<Transaction> vTx)
 {
 	vector<MerkleNode> leafs;
-	for (int i = 0; i < vtx.size(); i++)
+	for (unsigned int i = 0; i < vTx.size(); i++)
 	{
-		unsigned int newID = generateID((unsigned char*)vtx[i].c_str());	//id del las hojas
+		
+		unsigned int newID = generateID((unsigned char*)vTx[i].txid.c_str());	//id del las hojas
 		char aux[BUFFER] = { '\0' };
 		sprintf_s(aux, sizeof(aux), "%08X", newID);		//pasa a ASCII
 		if (strlen(aux) != 8)
@@ -118,7 +119,7 @@ int BlockchainModel::convertTransactionsToMerkleLeafs(vector<string> vtx)
 		MerkleNode mn;
 		mn.newIDstr = aux;
 		mn.isReal = true;
-		mn.level = (int)ceil(log2(vtx.size()));
+		mn.level = (int)ceil(log2(vTx.size()));
 		leafs.push_back(mn);
 	}
 	trees.push_back(leafs);
@@ -139,7 +140,7 @@ vector<MerkleNode> BlockchainModel::propagateTreeUp(vector<MerkleNode> tree, vec
 		tree.push_back(level.back());
 	}
 
-	for (int i = 0; i < level.size(); i += 2)
+	for (unsigned int i = 0; i < level.size(); i += 2)
 	{
 		string conc = level[i].newIDstr + level[i + 1].newIDstr;		//toma el par
 		unsigned int newID = generateID((unsigned char*)conc.c_str());		//id del padre
@@ -185,7 +186,7 @@ unsigned int BlockchainModel::generateID(unsigned char* str)
 void BlockchainModel::Print(vector<MerkleNode> tree)
 {
 	cout << "Level\tID\t\tisReal" << endl;
-	for (int i = 0; i < tree.size(); i++)
+	for (unsigned int i = 0; i < tree.size(); i++)
 	{
 		cout << tree[i].level << '\t';
 		cout << tree[i].newIDstr << '\t';

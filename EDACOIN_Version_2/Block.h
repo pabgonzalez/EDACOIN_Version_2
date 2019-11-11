@@ -32,13 +32,11 @@ class Block
 {
 public:
 	Block();
-	Block(vector<string> vtx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx);
+	Block(vector<Transaction> vTx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx);
 
 	//in JSON
-	vector<string> vtx;			//vector de transacciones
-	//
 	vector<Transaction> vTx;
-	//
+	
 	int height;					//número de bloque
 	int nonce;
 	string blockid;

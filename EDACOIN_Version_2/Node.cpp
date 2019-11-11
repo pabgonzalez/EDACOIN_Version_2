@@ -9,8 +9,6 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 	this->neighbourNodes = neighbourNodes;
 	this->ID = ID;
 
-	neighbourID = "";
-
 	//Client
 	httpResponse = "";
 	performingFetch = 0;
@@ -181,7 +179,6 @@ json Node::generateMerkleBlock(string blockid , string txid)
 	{
 		j["merklePath"] += { {"Id", Ids[i]} };
 	}
-
 	return j;
 }
 

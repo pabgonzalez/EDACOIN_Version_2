@@ -14,28 +14,15 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 	pingStatus = false;
 	timer = (rand() % 999) * 10 + 10;
 	state = IDLE;
-	//Server
-	IO_Handler = new boost::asio::io_service();
-	//Creo el endpoint para recibir conexiones
-	boost::asio::ip::tcp::endpoint ep(boost::asio::ip::tcp::v4(), getNodePort());
-	serverAcceptor = new boost::asio::ip::tcp::acceptor(*IO_Handler, ep);
-	serverAcceptor->non_blocking(true);
-	serverAcceptor->listen(256);
 
-	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
-
-	readingRequest = false;
-	writingResponse = false;
-	request = Request();
-	response = Response(request);
+	Server* newserver = new Server(socket.port);
+	servers.push_back(newserver);
 }
 
 FullNode::~FullNode() {
-	serverAcceptor->close();
-	serverSocket->close();
-	delete serverAcceptor;
-	delete serverSocket;
-	delete IO_Handler;
+	for (int i = 0; i < servers.size(); i++) {
+		delete servers[i];
+	}
 }
 
 void FullNode::p2pNetFSM() {
@@ -224,65 +211,30 @@ bool FullNode::isConnected(vector<vector<bool>> adjacencyMatrix, unsigned qNodes
 	return true;
 }
 
-void FullNode::acceptConnection() {
-	//auto callback = bind(&FullNode::acceptHandler, this, _1);
-	//serverAcceptor->async_accept(*serverSocket, callback);
-	try {
-		serverAcceptor->accept(*serverSocket);
+void FullNode::cycleConnections() {
+	vector<int> pendingErasing;
+
+	if (servers.back()->acceptConnection()) {
+		Server* newserver = new Server(socket.port);
+		servers.push_back(newserver);
 	}
-	catch(boost::system::system_error e){
-
-	}
-}
-
-void FullNode::writeResponse() {
-	if (writingResponse) {
-		auto callback = bind(&FullNode::writeHandler, this, _1, _2);
-		serverSocket->async_write_some(boost::asio::buffer(response.toString(), strlen(response.toString())), callback);
-	}
-}
-
-void FullNode::readRequest() {
-	if (readingRequest) {
-		auto callback = bind(&FullNode::readHandler, this, _1, _2);
-		serverSocket->async_read_some(boost::asio::buffer(buf), callback);
-	}
-}
-
-void FullNode::readHandler(const boost::system::error_code& error, std::size_t len) {
-	cout << getNodeID() << " received the following:" << buf << endl;
-
-	if (len < 1) {
-		request.handleRequest(buf, len);
-		memset(buf, 0, 512 - 1);
-
-		if (request.isValid()) {
-			readingRequest = false;
-			writingResponse = true;
-			response = Response(request);
+	for (int i = 0; i < servers.size(); i++) {
+		if (servers[i]->readRequest()) {
+			// Analizar informacion recibida:
+			// Ej.: saveTx(...)
+			// Ej.: saveBlock(...)
+			// Ej.: appendFilter(...)
+			// ...
+			// Decidir que responder
 		}
-		else {
-			readingRequest = false;
-			writingResponse = false;
+
+		if (servers[i]->writeResponse()) {
+			pendingErasing.push_back(i);
 		}
 	}
-}
-
-void FullNode::writeHandler(const boost::system::error_code& error, std::size_t len) {
-	if (len < 1) {
-		writingResponse = false;
-	}
-}
-
-void FullNode::acceptHandler(const boost::system::error_code& error)
-{
-	cout << error.value() << endl;
-	if (!error)
-	{
-		cout << getNodeID() << " accepted a connection" << endl;
-
-		serverSocket->non_blocking(true);
-		readingRequest = true;
-		Request request = Request();
+	int amountErased = pendingErasing.size();
+	for (int i = amountErased-1; i >= 0; i--) {
+		delete servers[pendingErasing[i]];
+		servers.erase(servers.begin() + pendingErasing[i]);
 	}
 }

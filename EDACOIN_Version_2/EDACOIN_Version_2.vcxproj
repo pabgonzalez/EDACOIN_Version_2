@@ -168,10 +168,12 @@
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="JsonController.h" />
+    <ClInclude Include="LocalNodes.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="NodeController.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="ObserverManager.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="ServerRequest.h" />
     <ClInclude Include="ServerResponse.h" />
     <ClInclude Include="SPVNode.h" />
@@ -191,9 +193,11 @@
     <ClCompile Include="imgui_impl_allegro5.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="JsonController.cpp" />
+    <ClCompile Include="LocalNodes.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NodeController.cpp" />
+    <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerRequest.cpp" />
     <ClCompile Include="ServerResponse.cpp" />
     <ClCompile Include="SPVNode.cpp" />

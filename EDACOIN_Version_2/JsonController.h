@@ -23,5 +23,5 @@ private:
 	void getEvent(void);
 	void dispatch(void);
 	void saveBlocksFromJson(json j);
-	vector<string> createTxArray(json j);
+	vector<Transaction> createTxArray(json j);
 };

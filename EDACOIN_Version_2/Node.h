@@ -33,7 +33,6 @@ public:
 	string getNodeIP();
 	int getNodePort();
 	SocketType getNeighbourSockets(string ID);
-	string getNeighbourID() { return neighbourID; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	
 	//Senders (POST)
@@ -46,7 +45,6 @@ public:
 
 	//setters
 	void setNodeSocket(SocketType socket);
-	void setNeighbourID(string s) { neighbourID = s; }
 	
 	//appenders
 	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
@@ -66,7 +64,6 @@ protected:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
 	string ID;
-	string neighbourID;
 	SocketType socket;
 	map<string,SocketType> neighbourNodes;
 	BlockchainModel blockChain;

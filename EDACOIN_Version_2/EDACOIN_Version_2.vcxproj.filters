@@ -25,14 +25,20 @@
     <Filter Include="Source Files\MVC">
       <UniqueIdentifier>{288add81-74d0-421a-ba13-aee8a27a3f00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Blockchain">
+      <UniqueIdentifier>{d254b7af-4985-43a5-b5fc-7268e07f75d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Server">
+      <UniqueIdentifier>{6bf846b6-3836-4578-a2b1-62dcbc04214c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Blockchain">
+      <UniqueIdentifier>{d58930a0-e344-426f-b2dd-2e0f77ecbfa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Server">
+      <UniqueIdentifier>{14106e6a-166e-4b97-a2da-c30c5652fb42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlockchainModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BlockViewerController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -49,9 +55,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="JsonController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObserverManager.h">
@@ -87,32 +90,41 @@
     <ClInclude Include="Subject.h">
       <Filter>Header Files\MVC</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Block.h">
+      <Filter>Header Files\Blockchain</Filter>
     </ClInclude>
-    <ClInclude Include="SPVNode.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="BlockchainModel.h">
+      <Filter>Header Files\Blockchain</Filter>
     </ClInclude>
     <ClInclude Include="FullNode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Blockchain</Filter>
     </ClInclude>
-    <ClInclude Include="ServerResponse.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="LocalNodes.h">
+      <Filter>Header Files\Blockchain</Filter>
     </ClInclude>
-    <ClInclude Include="ServerRequest.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Node.h">
+      <Filter>Header Files\Blockchain</Filter>
+    </ClInclude>
+    <ClInclude Include="SPVNode.h">
+      <Filter>Header Files\Blockchain</Filter>
     </ClInclude>
     <ClInclude Include="NodeController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ServerResponse.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerRequest.h">
+      <Filter>Header Files\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Header Files\MVC</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Block.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BlockchainModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BlockViewerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,9 +141,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui.cpp">
@@ -152,20 +161,35 @@
     <ClCompile Include="Subject.cpp">
       <Filter>Source Files\MVC</Filter>
     </ClCompile>
-    <ClCompile Include="SPVNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FullNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerResponse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerRequest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NodeController.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockchainModel.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="FullNode.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="SPVNode.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalNodes.cpp">
+      <Filter>Source Files\Blockchain</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerRequest.cpp">
+      <Filter>Source Files\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerResponse.cpp">
+      <Filter>Source Files\Server</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

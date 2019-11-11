@@ -11,7 +11,7 @@ void Transaction::appendVout(voutType v) {
 
 Block::Block()
 {
-	this->vtx.clear();
+	this->vTx.clear();
 	this->height = -1;
 	this->nonce = -1;
 	this->blockid.clear();
@@ -27,9 +27,9 @@ Block::Block()
 	this->calculatedMerkleRoot.clear();
 }
 
-Block::Block(vector<string> vtx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx)
+Block::Block(vector<Transaction> vTx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx)
 {
-	this->vtx = vtx;
+	this->vTx = vTx;
 	this->height = height;
 	this->nonce = nonce;
 	this->blockid = blockid;

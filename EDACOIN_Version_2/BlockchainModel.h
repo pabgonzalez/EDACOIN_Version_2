@@ -61,7 +61,7 @@ public:
 	void setFileIndex(int fileIndex);
 	void setFiles(vector<path> files);
 	void clearBlockChain();
-	void appendBlock(vector<string> vtx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx);
+	void appendBlock(vector<Transaction> vTx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx);
 	void setBlockSelected(int i, bool state);
 	void setBlockOpened(int i, bool state);
 	void setBlockShowingInfo(int i, bool state);
@@ -69,8 +69,8 @@ public:
 	void setFileSelected(bool b);
 
 private:
-	int createTree(vector<string> vtx);
-	int convertTransactionsToMerkleLeafs(vector<string> vtx);
+	int createTree(vector<Transaction> vTx);
+	int convertTransactionsToMerkleLeafs(vector<Transaction> vTx);
 	vector<MerkleNode> propagateTreeUp(vector<MerkleNode> tree, vector<MerkleNode> level);
 	void Print(vector<MerkleNode> tree);
 	unsigned int generateID(unsigned char* str);
