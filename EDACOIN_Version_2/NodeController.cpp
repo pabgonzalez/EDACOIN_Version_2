@@ -8,21 +8,34 @@
 #include <allegro5/allegro_ttf.h>
 
 void NodeController::cycle(void) {
-	for (int i = 0; i < fullNodes.size(); i++) {
+	for (unsigned int i = 0; i < fullNodes.size(); i++) {
+		FullNode* n = fullNodes[i];
+
+		//Client
+		if (n->isPerformingFetch())
+			n->performFetch();
+
 		//Server
-		fullNodes[i]->acceptConnection();
-		fullNodes[i]->readRequest();
-		fullNodes[i]->writeResponse();
+		n->acceptConnection();
+		n->readRequest();
+		n->writeResponse();
 
-		//Gui
-		ImGui::Begin(("Node " + to_string(i)).c_str());
+		//Full Node GUI
+		ImGui::Begin(("Full Node " + n->getNodeID()).c_str());
 
-		char ip[25] = {};
-		char port[25] = {};
-		ImGui::InputText("Ingresar IP", ip, sizeof(ip));
-		ImGui::InputText("Ingresar Puerto", port, sizeof(port));
+		ImGui::Text(("ID: " + n->getNodeID()).c_str());
+		ImGui::Text(("IP: " + n->getNodeIP()).c_str());
+		ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
+		ImGui::Separator();
+		ImGui::Text("Conectarse con otro nodo");
+		char id[50];
+		sprintf(id, n->getNeighbourID().c_str());
+		ImGui::InputText("Ingresar ID", id, sizeof(id));
+		n->setNeighbourID(id);
 
-		ImGui::Button("Conectar");
+		if (ImGui::Button("Boton de prueba")) {
+			n->requestAddress(id, "/test.html");
+		}
 		
 		ImGui::End();
 	}

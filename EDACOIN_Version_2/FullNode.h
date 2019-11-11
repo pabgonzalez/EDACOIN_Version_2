@@ -34,4 +34,5 @@ private:
 	boost::asio::ip::tcp::acceptor* serverAcceptor;
 	void readHandler(const boost::system::error_code& error, std::size_t len);
 	void writeHandler(const boost::system::error_code& error, std::size_t len);
+	void acceptHandler(const boost::system::error_code& error);
 };

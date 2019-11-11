@@ -2,18 +2,27 @@
 
 using namespace std;
 
+static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp);
+
 Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes){
 	this->socket = socket;
 	this->neighbourNodes = neighbourNodes;
 	this->ID = ID;
 
+	neighbourID = "";
+
 	//Client
 	httpResponse = "";
+	performingFetch = 0;
 	curl_global_init(CURL_GLOBAL_ALL);
 }
 
 Node::~Node() {
 	curl_global_cleanup();
+}
+
+string Node::getNodeID() {
+	return ID;
 }
 
 string Node::getNodeIP() {
@@ -29,62 +38,81 @@ void Node::setNodeSocket(SocketType s){
 void Node::appendNeighbourNode(string nID, SocketType nS){
 	neighbourNodes.insert(pair<string, SocketType>(nID, nS));
 }
+void Node::appendNeighbourNode(Node neighbourNode){
+	string nID = neighbourNode.getNodeID();
+	SocketType nS = { neighbourNode.getNodeIP(), neighbourNode.getNodePort() };
+	neighbourNodes.insert(pair<string, SocketType>(nID, nS));
+}
 
 void Node::sendBlock(string nodeid, string blockid) {
 	json j = generateBlockJson(blockid);
+	string aux = j;
 
-	curl = curl_easy_init();
-	CURLcode res;
-	if (curl) {
-		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
-		curl_easy_setopt(curl, CURLOPT_URL, url+ "/eda_coin/send_block/");
-		string aux = j;
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-
-		auto callback = bind(&Node::writeCallback, this);
-
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
-
-		res = curl_easy_perform(curl);
-		if (res != CURLE_OK)
-			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		curl_easy_cleanup(curl);
-	}
+	httpPost(nodeid, "/eda_coin/send_block/", j);
 }
 
 void Node::sendTx(string nodeid, Transaction tx) {
 	json j = generateTx(tx);
+	string aux = j;
 
+	httpPost(nodeid, "/eda_coin/send_tx/", j);
+}
+
+void Node::httpPost(string nodeid, string addr, string msg) {
 	curl = curl_easy_init();
-	CURLcode res;
-	if (curl) {
+	multiHandle = curl_multi_init();
+
+	if ((curl != NULL) && (multiHandle != NULL)) {
+		//Attacheo el easy handle para manejar una conexion no bloqueante.
+		curl_multi_add_handle(multiHandle, curl);
+
 		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
-		curl_easy_setopt(curl, CURLOPT_URL, url + "/eda_coin/send_tx/");
-		string aux = j;
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, aux);
-		
-		auto callback = bind(&Node::writeCallback, this);
 
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &callbackData);
+		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
 
-		res = curl_easy_perform(curl);
-		if (res != CURLE_OK)
-			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		curl_easy_cleanup(curl);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, msg);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
+
+		performingFetch = 1;
 	}
 }
 
-size_t Node::writeCallback(char* contents, size_t size, size_t nmemb, void* userData)
-{
-	size_t realSize = size * nmemb;
-	char* data = (char*)contents;
-	string* s = (string*)userData;
-	s->append(data, realSize);
-	httpResponse += data;
+void Node::httpGet(string nodeid, string addr) {
+	curl = curl_easy_init();
+	multiHandle = curl_multi_init();
 
-	return realSize;
+	if ((curl != NULL) && (multiHandle != NULL)) {
+		//Attacheo el easy handle para manejar una conexion no bloqueante.
+		curl_multi_add_handle(multiHandle, curl);
+
+		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
+
+		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
+
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
+
+		performingFetch = 1;
+	}
+}
+
+bool Node::performFetch() {
+	//Realizamos un perform no bloqueante
+	curl_multi_perform(multiHandle, &performingFetch);
+
+	if (performingFetch == 0) {
+		//Siempre realizamos el cleanup al final
+		curl_easy_cleanup(curl);
+	}
+
+	//Devuelve true cuando finaliza el fetch
+	return (performingFetch == 0) ? true : false;
 }
 
 SocketType Node::getNeighbourSockets(string id) {
@@ -149,7 +177,7 @@ json Node::generateMerkleBlock(string blockid , string txid)
 	j["txPos"] = indexT;	//las tx empiezan en pos 0
 
 	vector<string> Ids = recursiveMerkleBlock( blockChain.getMerkleTree(indexB), indexT);	//arbol de bloque
-	for (int i = 0; i < Ids.size(); i++)
+	for (unsigned int i = 0; i < Ids.size(); i++)
 	{
 		j["merklePath"] += { {"Id", Ids[i]} };
 	}
@@ -212,4 +240,15 @@ json Node:: generateBlockHeader(string blockid)
 	cout << j << endl;
 
 	return j;
+}
+
+//Concatena lo recibido en content a s
+static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	size_t realsize = size * nmemb;
+	char* data = (char*)contents;
+	string* s = (string*)userp;
+	s->append(data, realsize);
+
+	return realsize;
 }

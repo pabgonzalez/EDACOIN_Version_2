@@ -29,19 +29,28 @@ public:
 	~Node();
 	
 	//getters
+	string getNodeID();
 	string getNodeIP();
 	int getNodePort();
 	SocketType getNeighbourSockets(string ID);
+	string getNeighbourID() { return neighbourID; }
+	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	
 	//Senders (POST)
 	void sendBlock(string nodeid, string blockid);
 	void sendTx(string nodeid, Transaction tx);
+	void httpPost(string nodeid, string addr, string msg);
+
+	//Requesters (GET)
+	void httpGet(string nodeid, string addr);
 
 	//setters
 	void setNodeSocket(SocketType socket);
+	void setNeighbourID(string s) { neighbourID = s; }
 	
 	//appenders
 	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
+	void appendNeighbourNode(Node neighbourNode);
 	
 	//writers
 	json generateBlockJson(string blockid);
@@ -49,18 +58,22 @@ public:
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);
+
+	//curl functions
+	bool performFetch();
 	
 private:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
 	string ID;
+	string neighbourID;
 	SocketType socket;
 	map<string,SocketType> neighbourNodes;
 	BlockchainModel blockChain;
 
 	//Client side
 	CURL* curl;
-	string callbackData;
+	CURLM* multiHandle;
 	string httpResponse;
-	size_t writeCallback(char* contents, size_t size, size_t nmemb, void* userData);
+	int performingFetch;
 };

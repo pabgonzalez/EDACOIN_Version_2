@@ -29,8 +29,10 @@ int main() {
 		model.attach(jsonControl);
 
 		NodeController nodeControl;
-		FullNode full1({ "127.0.0.1", 10000 });
-		FullNode full2({ "127.0.0.1", 10001 });
+		FullNode full1({ "127.0.0.1", 10000 }, "Jorge");
+		FullNode full2({ "127.0.0.1", 10001 }, "Ricardo");
+		full1.appendNeighbourNode(full2);
+		full2.appendNeighbourNode(full1);
 		nodeControl.addNode(&full1);
 		nodeControl.addNode(&full2);
 

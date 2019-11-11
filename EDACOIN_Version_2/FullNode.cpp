@@ -16,10 +16,12 @@ Node(socket, ID, neighbourNodes){
 	IO_Handler = new boost::asio::io_service();
 	//Creo el endpoint para recibir conexiones
 	boost::asio::ip::tcp::endpoint ep(boost::asio::ip::tcp::v4(), getNodePort());
-	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
 	serverAcceptor = new boost::asio::ip::tcp::acceptor(*IO_Handler, ep);
 	serverAcceptor->non_blocking(true);
-	//serverSocket->non_blocking(true);
+	serverAcceptor->listen(256);
+
+	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
+
 	readingRequest = false;
 	writingResponse = false;
 	request = Request();
@@ -60,11 +62,13 @@ void FullNode::p2pNetFSM() {
 }
 
 void FullNode::acceptConnection() {
-	boost::system::error_code error;
-	serverAcceptor->accept(*serverSocket, error);
-	if (error.value() != EWOULDBLOCK) {
-		readingRequest = true;
-		Request request = Request();
+	//auto callback = bind(&FullNode::acceptHandler, this, _1);
+	//serverAcceptor->async_accept(*serverSocket, callback);
+	try {
+		serverAcceptor->accept(*serverSocket);
+	}
+	catch(boost::system::system_error e){
+
 	}
 }
 
@@ -83,6 +87,8 @@ void FullNode::readRequest() {
 }
 
 void FullNode::readHandler(const boost::system::error_code& error, std::size_t len) {
+	cout << getNodeID() << " received the following:" << buf << endl;
+
 	if (len < 1) {
 		request.handleRequest(buf, len);
 		memset(buf, 0, 512 - 1);
@@ -102,5 +108,18 @@ void FullNode::readHandler(const boost::system::error_code& error, std::size_t l
 void FullNode::writeHandler(const boost::system::error_code& error, std::size_t len) {
 	if (len < 1) {
 		writingResponse = false;
+	}
+}
+
+void FullNode::acceptHandler(const boost::system::error_code& error)
+{
+	cout << error.value() << endl;
+	if (!error)
+	{
+		cout << getNodeID() << " accepted a connection" << endl;
+
+		serverSocket->non_blocking(true);
+		readingRequest = true;
+		Request request = Request();
 	}
 }
