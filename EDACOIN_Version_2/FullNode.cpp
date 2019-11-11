@@ -14,7 +14,6 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 	pingStatus = false;
 	timer = (rand() % 999) * 10 + 10;
 	state = IDLE;
-
 	//Server
 	IO_Handler = new boost::asio::io_service();
 	//Creo el endpoint para recibir conexiones
@@ -181,6 +180,7 @@ bool FullNode::isConnected(vector<vector<bool>> adjacencyMatrix, unsigned qNodes
 		if (!vis[i])	//if there is a node, not visited by traversal, graph is not connected
 			return false;
 	}
+	return true;
 }
 
 void FullNode::acceptConnection() {
