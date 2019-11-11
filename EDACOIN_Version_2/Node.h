@@ -62,7 +62,7 @@ public:
 	//curl functions
 	bool performFetch();
 	
-private:
+protected:
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
 	string ID;
