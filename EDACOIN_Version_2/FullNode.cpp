@@ -157,12 +157,11 @@ void FullNode::p2pNetFSM() {
 vector<vector<bool>> FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 {
 	vector<string> IDs;
-	vector<vector<bool>> adjacencyMatrix(IDs.size(), vector<bool>(IDs.size(), 0));
-	
 	for (auto const& element : Nodes)
 		IDs.push_back(element.first);
 	IDs.push_back(this->ID);
 	
+	vector<vector<bool>> adjacencyMatrix(IDs.size(), vector<bool>(IDs.size(), 0));
 	while (isConnected(adjacencyMatrix, IDs.size()) == false || checkStrongConnections(adjacencyMatrix, IDs.size()) != -1)
 	{
 		unsigned i = rand() % IDs.size(), j = i;
