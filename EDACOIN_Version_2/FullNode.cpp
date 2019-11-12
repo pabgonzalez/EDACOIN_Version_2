@@ -25,6 +25,111 @@ FullNode::~FullNode() {
 	}
 }
 
+void FullNode::sendMerkleBlock(string nodeid, string blockid, string txid) {
+	if (isNeighbour(nodeid)) {
+		json j = generateMerkleBlock(blockid, txid);
+		string aux = j;
+
+		httpPost(nodeid, "/eda_coin/send_merkle_block/", j);
+	}
+}
+
+void FullNode::sendBlock(string nodeid, string blockid) {
+	if (isNeighbour(nodeid)) {
+		json j = generateBlockJson(blockid);
+		string aux = j;
+
+		httpPost(nodeid, "/eda_coin/send_block/", j);
+	}
+}
+
+json FullNode::generateBlockJson(string blockid)
+{
+	int b;
+	for (b = 0; b < blockChain.getBlockchainSize(); b++)
+	{
+		if (blockChain.getBlockId(b) == blockid) { break; }
+	}
+	json j;
+	for (int t = 0; t < blockChain.getBlockTransactionNumber(b); t++)
+	{
+		j["tx"] += generateTx(blockChain.getTxInBlock(b, t));
+	}
+	j["height"] = blockChain.getBlockHeight(b);
+	j["nonce"] = blockChain.getBlockNonce(b);
+	j["blockid"] = blockid;
+	j["previousblockid"] = blockChain.getPreviousBlockId(b);
+	j["merkleroot"] = blockChain.getBlockMerkleRoot(b);
+	j["nTx"] = blockChain.getBlockTransactionNumber(b);
+	return j;
+}
+
+//generateBlockHeader genera un json (array de objectos), donde cada objeto es el header de cada bloque hasta el indicado por blockid
+json FullNode::generateBlockHeader(string blockid)
+{
+	// create JSON 
+	json j;
+	for (int i = 0; (blockChain.getBlockId(i) != blockid) && (i < blockChain.getBlockchainSize()); i++)
+	{
+		// add values
+		j += {
+			{ "height", blockChain.getBlockHeight(i) },
+			{ "nonce", blockChain.getBlockNonce(i) },
+			{ "blockid", blockChain.getBlockId(i) },
+			{ "previousblockid", blockChain.getPreviousBlockId(i) },
+			{ "merkleroot", blockChain.getBlockMerkleRoot(i) },
+			{ "nTx", blockChain.getBlockTransactionNumber(i) }
+		};
+	}
+	// print values
+	cout << j << endl;
+
+	return j;
+}
+
+json FullNode::generateMerkleBlock(string blockid, string txid)
+{
+	int indexB, indexT;
+	for (indexB = 0; indexB < blockChain.getBlockchainSize(); indexB++)
+	{
+		if (blockid == blockChain.getBlockId(indexB))
+		{
+			for (indexT = 0; indexT < blockChain.getBlockTransactionNumber(indexB); indexT++)
+			{
+				if (txid == blockChain.getTxInBlock(indexB, indexT).txid) { break; }
+			}
+			break;
+		}
+	}
+	json j;
+	j["blockid"] = blockid;
+	j["tx"] = generateTx(blockChain.getTxInBlock(indexB, indexT));
+	j["txPos"] = indexT;	//las tx empiezan en pos 0
+
+	vector<string> Ids = recursiveMerkleBlock(blockChain.getMerkleTree(indexB), indexT);	//arbol de bloque
+	for (unsigned int i = 0; i < Ids.size(); i++)
+	{
+		j["merklePath"] += { {"Id", Ids[i]} };
+	}
+	return j;
+}
+
+vector<string> FullNode::recursiveMerkleBlock(vector<MerkleNode> t, int pos)
+{
+	static vector<string> Ids;			//vector de IDstring de los nodos necesarios
+	static int level = t[0].level;		//nivel actual
+
+	if (level == 0) { return Ids; }		//
+
+	(pos % 2) ? Ids.push_back(t[pos - 1].newIDstr) : Ids.push_back(t[pos + 1].newIDstr);	//guardo el IDstring respectivo
+
+	while (t[0].level == level) { t.erase(t.begin()); }	//borro el nivel actual
+
+	level--;	//paso al siguiente nivel
+
+	return recursiveMerkleBlock(t, pos / 2);
+}
+
 void FullNode::p2pNetFSM() {
 	switch (state) {
 	case IDLE:
@@ -52,16 +157,13 @@ void FullNode::p2pNetFSM() {
 vector<vector<bool>> FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 {
 	vector<string> IDs;
+	vector<vector<bool>> adjacencyMatrix(IDs.size(), vector<bool>(IDs.size(), 0));
+	
 	for (auto const& element : Nodes)
 		IDs.push_back(element.first);
 	IDs.push_back(this->ID);
-	return p2pRecursive(IDs);
-}
-
-vector<vector<bool>> FullNode::p2pRecursive(vector<string>& IDs)
-{
-	static vector<vector<bool>> adjacencyMatrix(IDs.size(), vector<bool>(IDs.size(), 0));
-	while (checkStrongConnections(adjacencyMatrix, IDs.size()) != -1 )
+	
+	while (isConnected(adjacencyMatrix, IDs.size()) == false || checkStrongConnections(adjacencyMatrix, IDs.size()) != -1)
 	{
 		unsigned i = rand() % IDs.size(), j = i;
 		cout << i << endl;
@@ -106,26 +208,6 @@ vector<vector<bool>> FullNode::p2pRecursive(vector<string>& IDs)
 		}
 		cout << endl;
 	}
-	if (isConnected(adjacencyMatrix, IDs.size()) == false)
-	{
-		cout << "No conexo" << endl;
-	}
-
-	//if (isConnected(adjacencyMatrix, IDs.size()) )
-	//{
-	//
-	//	if ( checkStrongConnections(adjacencyMatrix, IDs.size())) == -1)
-	//		return adjacencyMatrix;
-		//else
-		//{
-		//	unsigned newNeighbour = disconnected;
-		//	while (newNeighbour == disconnected || adjacencyMatrix[disconnected][newNeighbour] == true)
-		//	{
-		//		newNeighbour = rand() % IDs.size();
-		//	}
-		//	adjacencyMatrix[disconnected][newNeighbour] = true;
-		//	adjacencyMatrix[newNeighbour][disconnected] = true;
-		//}
 	return adjacencyMatrix;
 }
 
@@ -192,7 +274,6 @@ int FullNode::checkStrongConnections(vector<vector<bool>> matrix , int n)
 	return -1;
 }
 
-//https://www.tutorialspoint.com/cplusplus-program-to-check-the-connectivity-of-undirected-graph-using-dfs
 void FullNode::traverse(vector<bool>& visited, vector<vector<bool>> adjacencyMatrix, unsigned qNodes, int u) {
 	visited[u] = true;	//mark v as visited
 	for (int v = 0; v < qNodes; v++) {
