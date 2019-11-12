@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 #include <string>
 
@@ -19,12 +18,18 @@ class Transaction {
 public:
 	void appendVin(vinType v);
 	void appendVout(voutType v);
-//private:
 	string txid;
 	int nTxin;
 	vector<vinType> vin;
 	int nTxout;
 	vector<voutType> vout;
+};
+
+class Filter {
+public:
+	string publicid;
+	string ip;
+	int port;
 };
 
 //bloque de la blockchain

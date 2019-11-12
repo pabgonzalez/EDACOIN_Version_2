@@ -18,10 +18,12 @@ public:
 	~JsonController();
 	void update(void*);
 	void cycle(void);
+	vector<Transaction> createTxVector(json j);
+	Filter createFilter(json j);
 
 private:
 	void getEvent(void);
 	void dispatch(void);
 	void saveBlocksFromJson(json j);
-	vector<Transaction> createTxArray(json j);
+
 };

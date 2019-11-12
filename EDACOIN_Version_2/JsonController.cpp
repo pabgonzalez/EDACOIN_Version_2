@@ -53,22 +53,30 @@ void JsonController::saveBlocksFromJson(json j) {
 	}
 }
 
-vector<Transaction> JsonController::createTxArray(json j)
-{
+vector<Transaction> JsonController::createTxVector(json j) {
 	vector<Transaction> vTx;
-	
-	//TO-DO
-
-	/*vector<string> strSum;
-	for (auto& element : j)
-	{
-		string concatenatedIds = "";
-		for (int i = 0; i < element["nTxin"]; i++) {
-			string aux = ((element["vin"])[i])["txid"];
-			concatenatedIds += aux;
+	for (auto& element : j) {
+		for (int m = 0; m < element["nTx"]; m++) {
+			vTx[m].nTxin = element["nTxin"];
+			for (int n = 0; n < element["nTxin"]; n++) {
+				vTx[m].vin[n].blockid = ((element["vin"])[n])["blockid"];
+				vTx[m].vin[n].txid = ((element["vin"])[n])["txid"];
+			}
+			vTx[m].nTxout = element["nTxin"];
+			for (int n = 0; n < element["nTxout"]; n++) {
+				vTx[m].vout[n].publicid = ((element["vout"])[n])["publicid"];
+				vTx[m].vout[n].amount = ((element["vout"])[n])["amount"];
+			}
 		}
-		vTx.push_back(concatenatedIds);
 	}
-	*/
 	return vTx;
+}
+
+Filter JsonController::createFilter(json j) {
+	Filter f;
+	for (auto& element : j) {
+		f.publicid = element["publicid"];
+		f.ip = element["ip"];
+		f.port = element["port"];
+	}
 }
