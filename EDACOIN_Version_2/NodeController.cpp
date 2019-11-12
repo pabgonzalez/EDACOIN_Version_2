@@ -45,6 +45,12 @@ void NodeController::cycle(void) {
 			ImGui::InputText("Ingresar ID", id, sizeof(id));
 			info.neighbourID = id;
 
+			if (ImGui::Button("Boton de prueba")) {
+				vector<vinType> vin;
+				vector<voutType> vout;
+				Transaction tx = { "Hola txid", 0, vin, 0, vout };
+				n->sendTx(id, tx);
+			}
 			if (ImGui::Button("Transferencia")) {
 				//n->httpGet(id, "/test.html");
 				char NeighID[64];
@@ -105,74 +111,68 @@ void NodeController::cycle(void) {
 			}
 
 			ImGui::End();
-			for (int i = 0; i < m.getSPVNodesSize(); i++) {
-				SPVNodeInfo info = m.getSPVNode(i);
-				SPVNode* n = info.spvNode;
+		}
+		for (int i = 0; i < m.getSPVNodesSize(); i++) {
+			SPVNodeInfo info = m.getSPVNode(i);
+			SPVNode* n = info.spvNode;
 
-				//Client
-				if (n->isPerformingFetch()) {
-					n->performFetch();
-				}
-				else {
-					if (n->getHttpMessage() == POST) {
-						json response(n->getResponse());
-						if (response["result"] == true) {
-							//Yay for me
-						}
-					}
-					else if (n->getHttpMessage() == GET) {
-						json response(n->getResponse());
-
-						//Received Block Header, do something
+			//Client
+			if (n->isPerformingFetch()) {
+				n->performFetch();
+			}
+			else {
+				if (n->getHttpMessage() == POST) {
+					json response(n->getResponse());
+					if (response["result"] == true) {
+						//Yay for me
 					}
 				}
+				else if (n->getHttpMessage() == GET) {
+					json response(n->getResponse());
 
-				//Full Node GUI
-				ImGui::Begin(("SPV Node " + n->getNodeID()).c_str());
-
-				ImGui::Text(("ID: " + n->getNodeID()).c_str());
-				ImGui::Text(("IP: " + n->getNodeIP()).c_str());
-				ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
-				ImGui::Separator();
-				ImGui::Text("Conectarse con otro nodo");
-				char id[50];
-				sprintf(id, info.neighbourID.c_str());
-				ImGui::InputText("Ingresar ID", id, sizeof(id));
-				info.neighbourID = id;
-
-				if (ImGui::Button("Boton de prueba")) {
-
-					n->httpGet(id, "/test.html");
+					//Received Block Header, do something
 				}
-				if (ImGui::Button("Transferencia")) {
-					//n->httpGet(id, "/test.html");
-					char NeighID[64];
-					float amount = 0;
-					ImGui::Begin("Transfer");
-					ImGui::Text("ID del vecino", NeighID);
-					ImGui::InputFloat("Monto", &amount, 0.1f, 0.5f);
-					if (ImGui::Button("Aceptar")) {
-						/*realizar transaccion*/
-					}
-					ImGui::End();
-
-				}
-				if (ImGui::Button("Ver Vecinos")) {
-					char NeighID1[64] = "Vecino 1";
-					char NeighID2[64] = "Vecino 2";
-					ImGui::Text("Id", NeighID1);
-					ImGui::Text("Id", NeighID2);
-					/*
-					Cambiar vecinos
-					*/
-				}
-
 			}
 
+			//Full Node GUI
+			ImGui::Begin(("SPV Node " + n->getNodeID()).c_str());
 
+			ImGui::Text(("ID: " + n->getNodeID()).c_str());
+			ImGui::Text(("IP: " + n->getNodeIP()).c_str());
+			ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
+			ImGui::Separator();
+			ImGui::Text("Conectarse con otro nodo");
+			char id[50];
+			sprintf(id, info.neighbourID.c_str());
+			ImGui::InputText("Ingresar ID", id, sizeof(id));
+			info.neighbourID = id;
 
-			ImGui::End();
+			if (ImGui::Button("Boton de prueba")) {
+				n->sendFilter(id);
+			}
+			if (ImGui::Button("Transferencia")) {
+				//n->httpGet(id, "/test.html");
+				char NeighID[64];
+				float amount = 0;
+				ImGui::Begin("Transfer");
+				ImGui::Text("ID del vecino", NeighID);
+				ImGui::InputFloat("Monto", &amount, 0.1f, 0.5f);
+				if (ImGui::Button("Aceptar")) {
+					/*realizar transaccion*/
+				}
+				ImGui::End();
+
+			}
+			if (ImGui::Button("Ver Vecinos")) {
+				char NeighID1[64] = "Vecino 1";
+				char NeighID2[64] = "Vecino 2";
+				ImGui::Text("Id", NeighID1);
+				ImGui::Text("Id", NeighID2);
+				/*
+				Cambiar vecinos
+				*/
+			}
+
 		}
-
 	}
 }

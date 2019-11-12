@@ -46,9 +46,10 @@ void Node::appendNeighbourNode(Node neighbourNode){
 void Node::sendTx(string nodeid, Transaction tx) {
 	if (isNeighbour(nodeid)) {
 		json j = generateTx(tx);
-		string aux = j;
+		string aux = j.dump();
+		cout << "Json a mandar: " << aux << endl;
 
-		httpPost(nodeid, "/eda_coin/send_tx/", j);
+		httpPost(nodeid, "/eda_coin/send_tx/", aux);
 	}
 }
 
@@ -68,8 +69,14 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
+		
+		struct curl_slist* list = NULL;
+		list = curl_slist_append(list, "Content-Type: application/x-www-form-urlencoded;charset=UTF-8");
 
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, msg);
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, msg.size());
+		curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, msg.c_str());
+		cout << "Mensaje del post: " << msg << endl;
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
@@ -139,7 +146,8 @@ json Node::generateTx(Transaction tx)
 	json j;
 
 	j["txid"] = tx.txid;
-	j["nTxin"] = tx.nTxin;
+	/*j["nTxin"] = tx.nTxin;
+	
 	for (int i = 0; i < tx.nTxin; i++)
 	{
 		j["vin"] += { {"blockid", tx.vin[i].blockid}, { "txid", tx.vin[i].txid } };
@@ -148,7 +156,7 @@ json Node::generateTx(Transaction tx)
 	for (int i = 0; i < tx.nTxout; i++)
 	{
 		j["vout"] += { {"publicid", tx.vout[i].publicid}, { "amount", tx.vout[i].amount } };
-	}
+	}*/
 	return j;
 }
 
