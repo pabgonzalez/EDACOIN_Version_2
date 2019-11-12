@@ -112,7 +112,7 @@ void Node::getBlockHeader(string nodeid, string blockid) {
 	}
 }
 
-void Node::httpGet(string nodeid, string addr, string header = "") {
+void Node::httpGet(string nodeid, string addr, string header) {
 	httpResponse = "";
 	httpMessage = GET;
 
