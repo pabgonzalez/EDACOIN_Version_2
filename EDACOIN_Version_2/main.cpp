@@ -17,40 +17,40 @@
 using namespace std;
 using namespace boost::filesystem;
 
-//int main() {
-//	srand(time(NULL));
-//	ImGuiObserverManager obsManager;
-//	if (obsManager.getError() == false)
-//	{
-//		BlockchainModel model;
-//		BlockViewerController blockViewerControl(model);
-//		JsonController jsonControl(model);
-//		ImGuiViewer view;
-//		model.attach(view);
-//		model.attach(blockViewerControl);
-//		model.attach(jsonControl);
-//
-//		LocalNodes localNodes;
-//		NodeController nodeControl(localNodes);
-//		FullNode full1({ "127.0.0.1", 10000 }, "Jorge");
-//		FullNode full2({ "127.0.0.1", 10001 }, "Ricardo");
-//		full1.appendNeighbourNode(full2);
-//		full2.appendNeighbourNode(full1);
-//		localNodes.appendNode(&full1);
-//		localNodes.appendNode(&full2);
-//
-//		obsManager.addObserver(&blockViewerControl);
-//		obsManager.addObserver(&view);
-//		obsManager.addObserver(&nodeControl);
-//
-//		while (obsManager.getExit() == false) {
-//			obsManager.cycle();
-//			jsonControl.cycle();
-//		}
-//	}
-//	else
-//		char c = getchar();
-//}
+int main() {
+	srand(time(NULL));
+	ImGuiObserverManager obsManager;
+	if (obsManager.getError() == false)
+	{
+		BlockchainModel model;
+		BlockViewerController blockViewerControl(model);
+		JsonController jsonControl(model);
+		ImGuiViewer view;
+		model.attach(view);
+		model.attach(blockViewerControl);
+		model.attach(jsonControl);
+
+		LocalNodes localNodes;
+		NodeController nodeControl(localNodes);
+		FullNode full1({ "127.0.0.1", 10000 }, "Jorge");
+		FullNode full2({ "127.0.0.1", 10001 }, "Ricardo");
+		full1.appendNeighbourNode(full2);
+		full2.appendNeighbourNode(full1);
+		localNodes.appendNode(&full1);
+		localNodes.appendNode(&full2);
+
+		obsManager.addObserver(&blockViewerControl);
+		obsManager.addObserver(&view);
+		obsManager.addObserver(&nodeControl);
+
+		while (obsManager.getExit() == false) {
+			obsManager.cycle();
+			jsonControl.cycle();
+		}
+	}
+	else
+		char c = getchar();
+}
 
 //int main()
 //{
@@ -82,12 +82,12 @@ using namespace boost::filesystem;
 //	}
 //}
 
-int main() {
-	srand(time(NULL));
-	map<string, SocketType> m = { {"id1", {"1", 1}}, {"id2", {"2", 2}}, {"id3", {"3", 3}}, {"id4", {"4", 4}},
-	{"id5", {"5", 5}}, {"id6", {"6", 6}}, {"id7", {"7", 7}}, {"id8", {"8", 8}}, {"id9", {"9", 9}},
-	{ "id10", {"10", 10} }, { "id11", {"11", 11} }, { "id12", {"12", 12} }, { "id13", {"13", 13} }, { "id14", {"14", 14} },
-	{ "id15", {"15", 15} }, { "id16", {"16", 16} }, { "id17", {"17", 17} }, { "id18", {"18", 18} }, { "id19", {"19", 19} } };
-	FullNode fn({"0", 0}, "id0", m);
-	vector<vector<bool>> v = fn.p2pAlgorithm(m);
-}
+//int main() {
+//	srand(time(NULL));
+//	map<string, SocketType> m = { {"id1", {"1", 1}}, {"id2", {"2", 2}}, {"id3", {"3", 3}}, {"id4", {"4", 4}},
+//	{"id5", {"5", 5}}, {"id6", {"6", 6}}, {"id7", {"7", 7}}, {"id8", {"8", 8}}, {"id9", {"9", 9}},
+//	{ "id10", {"10", 10} }, { "id11", {"11", 11} }, { "id12", {"12", 12} }, { "id13", {"13", 13} }, { "id14", {"14", 14} },
+//	{ "id15", {"15", 15} }, { "id16", {"16", 16} }, { "id17", {"17", 17} }, { "id18", {"18", 18} }, { "id19", {"19", 19} } };
+//	FullNode fn({"0", 0}, "id0", m);
+//	vector<vector<bool>> v = fn.p2pAlgorithm(m);
+//}
