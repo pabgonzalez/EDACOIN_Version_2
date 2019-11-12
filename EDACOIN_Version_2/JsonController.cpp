@@ -37,7 +37,6 @@ void JsonController::dispatch() {
 
 void JsonController::saveBlocksFromJson(json j) {
 	if (!j.empty() && j.is_array())
-
 	{
 		vector<string> vTx;
 		for (auto& element : j)
@@ -48,35 +47,48 @@ void JsonController::saveBlocksFromJson(json j) {
 			auto previousblockid = element["previousblockid"];
 			auto merkleroot = element["merkleroot"];
 			auto nTx = element["nTx"];
-			m.appendBlock(createTxArray(element["tx"]), height, nonce, blockid, previousblockid, merkleroot, nTx);
+			m.appendBlock(createTxVector(element["tx"]), height, nonce, blockid, previousblockid, merkleroot, nTx);
 		}
 	}
 }
 
 vector<Transaction> JsonController::createTxVector(json j) {
-	vector<Transaction> vTx;
-	for (auto& element : j) {
-		for (int m = 0; m < element["nTx"]; m++) {
-			vTx[m].nTxin = element["nTxin"];
-			for (int n = 0; n < element["nTxin"]; n++) {
-				vTx[m].vin[n].blockid = ((element["vin"])[n])["blockid"];
-				vTx[m].vin[n].txid = ((element["vin"])[n])["txid"];
-			}
-			vTx[m].nTxout = element["nTxin"];
-			for (int n = 0; n < element["nTxout"]; n++) {
-				vTx[m].vout[n].publicid = ((element["vout"])[n])["publicid"];
-				vTx[m].vout[n].amount = ((element["vout"])[n])["amount"];
+	vector<Transaction> vTx = { "", 0, vinType {"", ""}, 0, voutType {"", 0} };
+	if (!j.empty()) {
+		for (auto& element : j) {
+			for (int m = 0; m < element["nTx"]; m++) {
+				vTx[m].nTxin = element["nTxin"];
+				for (int n = 0; n < element["nTxin"]; n++) {
+					vinType vin;
+					vin.blockid = ((element["vin"])[n])["blockid"];
+					vin.txid = ((element["vin"])[n])["txid"];
+					vTx[m].appendVin(vin);
+				}
+				vTx[m].nTxout = element["nTxin"];
+				for (int n = 0; n < element["nTxout"]; n++) {
+					voutType vout;
+					vout.publicid = ((element["vout"])[n])["publicid"];
+					vout.amount = ((element["vout"])[n])["amount"];
+					vTx[m].appendVout(vout);
+				}
 			}
 		}
+		return vTx;
 	}
-	return vTx;
+	else
+		return vTx;
 }
 
 Filter JsonController::createFilter(json j) {
-	Filter f;
-	for (auto& element : j) {
-		f.publicid = element["publicid"];
-		f.ip = element["ip"];
-		f.port = element["port"];
+	Filter f = {"", "", 0};
+	if (!j.empty()) {
+		for (auto& element : j) {
+			f.publicid = element["publicid"];
+			f.ip = element["ip"];
+			f.port = element["port"];
+		}
+		return f;
 	}
+	else
+		return f;
 }
