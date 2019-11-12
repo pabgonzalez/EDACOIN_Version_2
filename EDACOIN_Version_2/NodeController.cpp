@@ -13,8 +13,19 @@ void NodeController::cycle(void) {
 		FullNode* n = info.fullNode;
 
 		//Client
-		if (n->isPerformingFetch())
+		if (n->isPerformingFetch()) {
 			n->performFetch();
+		}else {
+			if (n->getHttpMessage() == POST) {
+				json response(n->getResponse());
+				if (response["result"] == true) {
+					//Yay for me
+				}
+			}else if(n->getHttpMessage() == GET) {
+				json response(n->getResponse());
+				
+				//Received Block Header, do something
+		}
 
 		//Server
 		n->cycleConnections();
@@ -44,8 +55,22 @@ void NodeController::cycle(void) {
 		SPVNode* n = info.spvNode;
 
 		//Client
-		if (n->isPerformingFetch())
+		if (n->isPerformingFetch()) {
 			n->performFetch();
+		}
+		else {
+			if (n->getHttpMessage() == POST) {
+				json response(n->getResponse());
+				if (response["result"] == true) {
+					//Yay for me
+				}
+			}
+			else if (n->getHttpMessage() == GET) {
+				json response(n->getResponse());
+
+				//Received Block Header, do something
+			}
+		}
 
 		//Full Node GUI
 		ImGui::Begin(("SPV Node " + n->getNodeID()).c_str());

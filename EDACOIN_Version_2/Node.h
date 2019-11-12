@@ -14,6 +14,8 @@
 using namespace std;
 using json = nlohmann::json;
 
+typedef enum {NONE, POST, GET} HTTPMSG;
+
 typedef struct {
 	string IP;
 	int port;
@@ -33,15 +35,20 @@ public:
 	string getNodeIP();
 	int getNodePort();
 	SocketType getNeighbourSockets(string ID);
+	string getResponse() { return httpResponse; }
+	HTTPMSG getHttpMessage() { return httpMessage; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	
 	//Senders (POST)
 	void sendBlock(string nodeid, string blockid);
 	void sendTx(string nodeid, Transaction tx);
+	void sendMerkleBlock(string nodeid, string blockid, string txid);
+	void sendFilter(string nodeid);
 	void httpPost(string nodeid, string addr, string msg);
 
 	//Requesters (GET)
-	void httpGet(string nodeid, string addr);
+	void getBlockHeader(string nodeid, string blockid);
+	void httpGet(string nodeid, string addr, string header = "");
 
 	//setters
 	void setNodeSocket(SocketType socket);
@@ -56,6 +63,9 @@ public:
 	json generateBlockHeader(string blockid);
 	json generateFilter();
 	json generateTx(Transaction tx);
+
+	//otros
+	bool isNeighbour(string nodeid);
 
 	//curl functions
 	bool performFetch();
@@ -73,4 +83,5 @@ protected:
 	CURLM* multiHandle;
 	string httpResponse;
 	int performingFetch;
+	HTTPMSG httpMessage;	//Vale NONE, POST O GET
 };

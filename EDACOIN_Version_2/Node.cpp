@@ -11,6 +11,7 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 
 	//Client
 	httpResponse = "";
+	httpMessage = NONE;
 	performingFetch = 0;
 	curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -43,20 +44,46 @@ void Node::appendNeighbourNode(Node neighbourNode){
 }
 
 void Node::sendBlock(string nodeid, string blockid) {
-	json j = generateBlockJson(blockid);
-	string aux = j;
+	if (isNeighbour(nodeid)) {
+		json j = generateBlockJson(blockid);
+		string aux = j;
 
-	httpPost(nodeid, "/eda_coin/send_block/", j);
+		httpPost(nodeid, "/eda_coin/send_block/", j);
+	}
 }
 
 void Node::sendTx(string nodeid, Transaction tx) {
-	json j = generateTx(tx);
-	string aux = j;
+	if (isNeighbour(nodeid)) {
+		json j = generateTx(tx);
+		string aux = j;
 
-	httpPost(nodeid, "/eda_coin/send_tx/", j);
+		httpPost(nodeid, "/eda_coin/send_tx/", j);
+	}
+}
+
+void Node::sendMerkleBlock(string nodeid, string blockid, string txid) {
+	if (isNeighbour(nodeid)) {
+		json j = generateMerkleBlock(blockid, txid);
+		string aux = j;
+
+		httpPost(nodeid, "/eda_coin/send_merkle_block/", j);
+	}
+}
+
+void Node::sendFilter(string nodeid) {
+	if (isNeighbour(nodeid)) {
+		json j;
+		j["Id"] = ID;
+		string aux = j;
+
+		httpPost(nodeid, "/eda_coin/send_filter/", j);
+	}
 }
 
 void Node::httpPost(string nodeid, string addr, string msg) {
+	httpResponse = "";
+	httpMessage = POST;
+
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
 
@@ -79,7 +106,16 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 	}
 }
 
-void Node::httpGet(string nodeid, string addr) {
+void Node::getBlockHeader(string nodeid, string blockid) {
+	if (isNeighbour(nodeid)) {
+		httpGet(nodeid, "/eda_coin/get_block_header/", "'block_id':" + blockid);
+	}
+}
+
+void Node::httpGet(string nodeid, string addr, string header = "") {
+	httpResponse = "";
+	httpMessage = GET;
+
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
 
@@ -92,6 +128,12 @@ void Node::httpGet(string nodeid, string addr) {
 		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
+
+		if (header.size() > 0) {
+			struct curl_slist* list = NULL;
+			list = curl_slist_append(list, header.c_str());
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+		}
 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
@@ -237,6 +279,13 @@ json Node:: generateBlockHeader(string blockid)
 	cout << j << endl;
 
 	return j;
+}
+
+bool Node::isNeighbour(string nodeid) {
+	if (neighbourNodes.find(nodeid) == neighbourNodes.end()) {
+		return false;
+	}
+	return true;
 }
 
 //Concatena lo recibido en content a s
