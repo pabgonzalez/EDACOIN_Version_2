@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Subject.h"
 #include "FullNode.h"
 #include "SPVNode.h"

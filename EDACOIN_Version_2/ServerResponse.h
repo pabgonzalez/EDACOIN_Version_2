@@ -1,5 +1,4 @@
 #pragma once
-
 #include "ServerRequest.h"
 #include <iostream>
 

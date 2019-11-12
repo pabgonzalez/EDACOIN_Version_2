@@ -53,7 +53,7 @@ void JsonController::saveBlocksFromJson(json j) {
 }
 
 vector<Transaction> JsonController::createTxVector(json j) {
-	vector<Transaction> vTx = { "", 0, vinType {"", ""}, 0, voutType {"", 0} };
+	vector<Transaction> vTx;
 	if (!j.empty()) {
 		for (auto& element : j) {
 			for (int m = 0; m < element["nTx"]; m++) {
@@ -76,6 +76,7 @@ vector<Transaction> JsonController::createTxVector(json j) {
 		return vTx;
 	}
 	else
+		vTx = {};
 		return vTx;
 }
 

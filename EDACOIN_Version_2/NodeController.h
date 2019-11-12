@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Controller.h"
 #include "LocalNodes.h"
 #include "FullNode.h"
