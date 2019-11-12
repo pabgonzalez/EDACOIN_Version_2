@@ -16,21 +16,21 @@ using namespace std;
 typedef ALLEGRO_EVENT Evento;
 typedef ALLEGRO_EVENT_QUEUE * ColaDeEvento;
 typedef ALLEGRO_DISPLAY* Display;
-
-class BlockViewerController:public Controller {
-public:
-	BlockViewerController(ALLEGRO_DISPLAY** disp, BlockchainModel& modelo);
-	~BlockViewerController();
-	void update(void*);
-	void run(void);
-	void cycle(void);
-
-private:
-	void getEvent(void);
-	void dispatch(void);
-
-	bool queueEmpty;
-	Evento ev;
-	ColaDeEvento eventQueue;
-	ALLEGRO_DISPLAY* display;
-};
+//
+//class BlockViewerController:public Controller {
+//public:
+//	BlockViewerController(ALLEGRO_DISPLAY** disp, BlockchainModel& modelo);
+//	~BlockViewerController();
+//	void update(void*);
+//	void run(void);
+//	void cycle(void);
+//
+//private:
+//	void getEvent(void);
+//	void dispatch(void);
+//
+//	bool queueEmpty;
+//	Evento ev;
+//	ColaDeEvento eventQueue;
+//	ALLEGRO_DISPLAY* display;
+//};

@@ -70,7 +70,6 @@
 //		
 //		ImGui::Begin("Blockchain Viewer");
 //		
-//		ImGui::InputText("Ingresar Directorio", newpath, sizeof(newpath));
 //		
 //		ImGui::NewLine();
 //		ImGui::Separator();

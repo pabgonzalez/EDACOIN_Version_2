@@ -35,6 +35,7 @@ public:
 	string getNodeIP();
 	int getNodePort();
 	SocketType getNeighbourSockets(string ID);
+	BlockchainModel getBlockchain() { return blockChain; }
 	string getResponse() { return httpResponse; }
 	HTTPMSG getHttpMessage() { return httpMessage; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
