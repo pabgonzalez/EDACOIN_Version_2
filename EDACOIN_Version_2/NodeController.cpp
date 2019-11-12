@@ -44,26 +44,26 @@ void NodeController::cycle(void) {
 			sprintf(id, info.neighbourID.c_str());
 			ImGui::InputText("Ingresar ID", id, sizeof(id));
 			info.neighbourID = id;
+			ImGui::Separator();
 
 			if (ImGui::Button("Boton de prueba")) {
+			}
+
+			ImGui::Separator();
+
+			int amount = info.amount;
+			ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
+			info.amount = amount;
+			ImGui::SameLine();
+			if (ImGui::Button("Transferir")) {
 				vector<vinType> vin;
+				vin.push_back({ "blockid-dummy", "txid-dummy" });
 				vector<voutType> vout;
-				Transaction tx = { "Hola txid", 0, vin, 0, vout };
+				vout.push_back({ id, amount });
+				Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
 				n->sendTx(id, tx);
 			}
-			if (ImGui::Button("Transferencia")) {
-				//n->httpGet(id, "/test.html");
-				char NeighID[64];
-				float amount = 0;
-				ImGui::Begin("Transfer");
-				ImGui::Text("ID del vecino", NeighID);
-				ImGui::InputFloat("Monto", &amount, 0.1f, 0.5f);
-				if (ImGui::Button("Aceptar")) {
-					/*realizar transaccion*/
-				}
-				ImGui::End();
-
-			}
+			ImGui::Separator();
 			if (ImGui::Button("Ver Bloques")) {
 				ImGui::Begin("Bloques");
 				for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {

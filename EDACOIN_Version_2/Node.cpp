@@ -146,7 +146,7 @@ json Node::generateTx(Transaction tx)
 	json j;
 
 	j["txid"] = tx.txid;
-	/*j["nTxin"] = tx.nTxin;
+	j["nTxin"] = tx.nTxin;
 	
 	for (int i = 0; i < tx.nTxin; i++)
 	{
@@ -156,7 +156,7 @@ json Node::generateTx(Transaction tx)
 	for (int i = 0; i < tx.nTxout; i++)
 	{
 		j["vout"] += { {"publicid", tx.vout[i].publicid}, { "amount", tx.vout[i].amount } };
-	}*/
+	}
 	return j;
 }
 

@@ -3,7 +3,7 @@
 #include "FullNode.h"
 #include "SPVNode.h"
 
-class FullNodeInfo {
+class FullNodeInfo {	//Nodo + info del nodo para la GUI y demas
 public:
 	FullNodeInfo(FullNode* n) {
 		fullNode = n;
@@ -11,6 +11,7 @@ public:
 	}
 	FullNode* fullNode;
 	string neighbourID; //Vecino al cual me voy a conectar
+	int amount = 0;	//Unidades para transferir
 };
 
 class SPVNodeInfo {
@@ -21,6 +22,7 @@ public:
 	}
 	SPVNode* spvNode;
 	string neighbourID; //Vecino al cual me voy a conectar
+	int amount = 0;
 };
 
 class LocalNodes : public Subject {
