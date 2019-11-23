@@ -1,7 +1,7 @@
 #include "Server.h"
 
 Server::Server(unsigned int port) {
-	cout << "Se creo un servidor" << endl;
+	//cout << "Se creo un servidor" << endl;
 
 	//Server
 	IO_Handler = new boost::asio::io_service();
@@ -12,13 +12,13 @@ Server::Server(unsigned int port) {
 
 	serverSocket = new boost::asio::ip::tcp::socket(*IO_Handler);
 	readingRequest = false;
+	requestReady = false;
 	writingResponse = false;
-	request = Request();
-	response = Response();
+	response = "";
 }
 
 Server::~Server() {
-	cout << "Se destruyo un servidor" << endl;
+	//cout << "Se destruyo un servidor" << endl;
 	serverAcceptor->close();
 	serverSocket->close();
 	delete serverAcceptor;
@@ -36,24 +36,9 @@ bool Server::acceptConnection() {
 
 		//serverSocket->non_blocking(true);
 		readingRequest = true;
-		Request request = Request();
+		requestReady = false;
 
 		return true;
-	}
-	return false;
-}
-
-bool Server::writeResponse() {
-	if (writingResponse) {
-		boost::system::error_code error;
-		size_t len;
-		len = serverSocket->write_some(boost::asio::buffer(response.toString(), strlen(response.toString())), error);
-
-		if (error.value() != WSAEWOULDBLOCK) {
-			cout << "Enviando el siguiente mensaje:" << endl << response.toString() << endl;
-			writingResponse = false;
-			return true;
-		}
 	}
 	return false;
 }
@@ -68,19 +53,42 @@ bool Server::readRequest() {
 		if (error.value() != WSAEWOULDBLOCK) {
 			cout << "Se recibio el siguiente mensaje:" << endl << receivedMessage << endl;
 
-			request.handleRequest(receivedMessage.c_str(), receivedMessage.size());
+			readingRequest = false;
+			requestReady = true;
 
-			if (request.isValid()) {
-				readingRequest = false;
-				writingResponse = true;
-				response = Response(request);
-			}
-			else {
-				readingRequest = false;
-				writingResponse = false;
-			}
 			return true;
 		}
 	}
 	return false;
+}
+
+bool Server::writeResponse() {
+	if (writingResponse) {
+		boost::system::error_code error;
+		size_t len;
+		len = serverSocket->write_some(boost::asio::buffer(response.c_str(), strlen(response.c_str())), error);
+
+		if (error.value() != WSAEWOULDBLOCK) {
+			cout << "Enviando el siguiente mensaje:" << endl << response << endl;
+			writingResponse = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+string Server::getRequest() {
+	if (requestReady) {
+		return receivedMessage;
+	}
+	else {
+		return "";
+	}
+}
+
+void Server::sendResponse(string status, string content) {
+	response = "HTTP/1.1 ";
+	response += status + '\n';
+	response += content;
+	writingResponse = true;
 }

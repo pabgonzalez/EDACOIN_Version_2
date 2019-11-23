@@ -174,8 +174,6 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="ObserverManager.h" />
     <ClInclude Include="Server.h" />
-    <ClInclude Include="ServerRequest.h" />
-    <ClInclude Include="ServerResponse.h" />
     <ClInclude Include="SPVNode.h" />
     <ClInclude Include="Subject.h" />
   </ItemGroup>
@@ -198,8 +196,6 @@
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NodeController.cpp" />
     <ClCompile Include="Server.cpp" />
-    <ClCompile Include="ServerRequest.cpp" />
-    <ClCompile Include="ServerResponse.cpp" />
     <ClCompile Include="SPVNode.cpp" />
     <ClCompile Include="Subject.cpp" />
   </ItemGroup>

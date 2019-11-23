@@ -1,6 +1,4 @@
 #include "FullNode.h"
-#include "ServerRequest.h"
-#include "ServerResponse.h"
 #include <chrono>
 #include <thread>
 
@@ -20,7 +18,7 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 }
 
 FullNode::~FullNode() {
-	for (int i = 0; i < servers.size(); i++) {
+	for (unsigned int i = 0; i < servers.size(); i++) {
 		delete servers[i];
 	}
 }
@@ -199,9 +197,9 @@ vector<vector<bool>> FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 			adjacencyMatrix[i][j] = true;
 			adjacencyMatrix[j][i] = true;
 		}
-		for (int i = 0; i < adjacencyMatrix[0].size(); i++)
+		for (unsigned int i = 0; i < adjacencyMatrix[0].size(); i++)
 		{
-			for (int j = 0; j < adjacencyMatrix[0].size(); j++)
+			for (unsigned int j = 0; j < adjacencyMatrix[0].size(); j++)
 				cout << adjacencyMatrix[i][j] << '\t';
 			cout << endl;
 		}
@@ -249,7 +247,7 @@ bool FullNode::checkFullEpic(vector<vector<bool>> m, int n, int i)
 int FullNode::countConnections(vector<vector<bool>> m, int i)
 {
 	int connections = 0;
-	for (int n = 0; n < m.size(); n++)
+	for (unsigned int n = 0; n < m.size(); n++)
 	{
 		connections += m[i][n];
 	}
@@ -275,7 +273,7 @@ int FullNode::checkStrongConnections(vector<vector<bool>> matrix , int n)
 
 void FullNode::traverse(vector<bool>& visited, vector<vector<bool>> adjacencyMatrix, unsigned qNodes, int u) {
 	visited[u] = true;	//mark v as visited
-	for (int v = 0; v < qNodes; v++) {
+	for (unsigned int v = 0; v < qNodes; v++) {
 		if (adjacencyMatrix[u][v] && !visited[v])
 			traverse(visited, adjacencyMatrix, qNodes, v);
 	}
@@ -284,7 +282,7 @@ void FullNode::traverse(vector<bool>& visited, vector<vector<bool>> adjacencyMat
 bool FullNode::isConnected(vector<vector<bool>> adjacencyMatrix, unsigned qNodes) {
 	vector<bool> vis(qNodes, false);
 	traverse(vis, adjacencyMatrix, qNodes);
-	for (int i = 0; i < qNodes; i++) {
+	for (unsigned int i = 0; i < qNodes; i++) {
 		if (!vis[i])	//if there is a node, not visited by traversal, graph is not connected
 			return false;
 	}
@@ -298,8 +296,15 @@ void FullNode::cycleConnections() {
 		Server* newserver = new Server(socket.port);
 		servers.push_back(newserver);
 	}
-	for (int i = 0; i < servers.size(); i++) {
+	for (unsigned int i = 0; i < servers.size(); i++) {
 		if (servers[i]->readRequest()) {
+			string response = handleHttpRequest(servers[i]->getRequest());
+			if (response.size() == 0) {
+				servers[i]->sendResponse("404 Not Found", response);
+			}
+			else {
+				servers[i]->sendResponse("200 OK", response);
+			}
 			// Analizar informacion recibida:
 			// Ej.: saveTx(...)
 			// Ej.: saveBlock(...)
@@ -317,4 +322,58 @@ void FullNode::cycleConnections() {
 		delete servers[pendingErasing[i]];
 		servers.erase(servers.begin() + pendingErasing[i]);
 	}
+}
+
+string FullNode::handleHttpRequest(string request) {
+	string command;
+	unsigned int nCommand = 0;
+	string uri;			//Uri del mensaje (ej: 127.0.0.1:80/eda_coin/send_block/ )
+	string method;		//Method: GET o POST
+
+	unsigned int i = 0;
+	while(i < request.size()){
+		if (request[i] != '\r' && request[i] != '\n') {
+			command = "";
+			while (request[i] != '\r' && request[i] != '\n') {
+				command += request[i];
+				i++;
+				if (i == request.size()) break;
+			}
+
+			if (nCommand == 0) {	//First Line
+				int uriIndex;
+				int uriLength;
+				size_t foundGet = command.find("GET ");	//Posicion del texto "GET "
+				size_t foundPost = command.find("POST ");
+				size_t foundHttp = command.find("HTTP");
+				if (foundGet != string::npos) {
+					uriIndex = foundGet + 4;
+					method = "GET";
+				}
+				if (foundPost != string::npos) {
+					uriIndex = foundPost + 5;
+					method = "POST";
+				}
+				if (foundHttp != string::npos) {
+					uriLength = foundHttp - uriIndex - 1;
+					uri = command.substr(uriIndex, uriLength);
+				}
+			}
+			else {
+				json j = json::parse(command, nullptr, false);
+
+				if (j.is_discarded() == false) {
+					//hacer cosas en funcion del uri
+
+					return "{\"result\":true,\"errorCode\":null}";
+				}
+			}
+
+			nCommand++;
+		}
+
+		i++;
+	}
+
+	return "";
 }

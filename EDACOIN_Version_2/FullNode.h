@@ -1,8 +1,6 @@
 #pragma once
 #include "Node.h"
 #include "Server.h"
-#include "ServerRequest.h"
-#include "ServerResponse.h"
 
 using p2pstate = enum { IDLE = 0, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NETWORK_CREATED };
 
@@ -12,7 +10,7 @@ public:
 	FullNode(SocketType socket = { "", 0 }, string ID = "", map<string, SocketType> neighbourNodes = {});
 	~FullNode();
 	
-	//???
+	//getters
 	BlockchainModel getBlockchain() { return blockChain; }
 
 	//senders
@@ -28,7 +26,7 @@ public:
 	void p2pNetFSM();
 	vector<vector<bool>> p2pAlgorithm(map<string, SocketType> Nodes);
 
-	//others
+	//Server
 	void cycleConnections();
 
 private:
@@ -43,6 +41,9 @@ private:
 	bool checkFull(vector<vector<bool>> m, int n, int i);
 	bool checkFullRare(vector<vector<bool>> m, int n, int i);
 	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
+
+	//Server
+	string handleHttpRequest(string request);
 	
 	bool pingStatus;
 	unsigned timer;
