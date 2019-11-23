@@ -61,6 +61,7 @@ public:
 	void setFiles(vector<path> files);
 	void clearBlockChain();
 	void appendBlock(vector<Transaction> vTx, int height, int nonce, string blockid, string previousblockid, string merkleroot, int nTx);
+	void appendBlock(Block block);
 	void setBlockSelected(int i, bool state);
 	void setBlockOpened(int i, bool state);
 	void setBlockShowingInfo(int i, bool state);

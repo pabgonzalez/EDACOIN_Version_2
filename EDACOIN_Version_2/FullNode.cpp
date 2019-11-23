@@ -1,4 +1,5 @@
 #include "FullNode.h"
+#include "JsonController.h"
 #include <chrono>
 #include <thread>
 
@@ -67,21 +68,21 @@ json FullNode::generateBlockHeader(string blockid)
 {
 	// create JSON 
 	json j;
-	for (int i = 0; (blockChain.getBlockId(i) != blockid) && (i < blockChain.getBlockchainSize()); i++)
+	for (int i = 0; i < blockChain.getBlockchainSize(); i++)
 	{
-		// add values
-		j += {
-			{ "height", blockChain.getBlockHeight(i) },
-			{ "nonce", blockChain.getBlockNonce(i) },
-			{ "blockid", blockChain.getBlockId(i) },
-			{ "previousblockid", blockChain.getPreviousBlockId(i) },
-			{ "merkleroot", blockChain.getBlockMerkleRoot(i) },
-			{ "nTx", blockChain.getBlockTransactionNumber(i) }
-		};
+		if (blockChain.getBlockId(i) == blockid) {
+			// add values
+			j += {
+				{ "height", blockChain.getBlockHeight(i) },
+				{ "nonce", blockChain.getBlockNonce(i) },
+				{ "blockid", blockChain.getBlockId(i) },
+				{ "previousblockid", blockChain.getPreviousBlockId(i) },
+				{ "merkleroot", blockChain.getBlockMerkleRoot(i) },
+				{ "nTx", blockChain.getBlockTransactionNumber(i) }
+			};
+			break;
+		}
 	}
-	// print values
-	cout << j << endl;
-
 	return j;
 }
 
@@ -305,12 +306,6 @@ void FullNode::cycleConnections() {
 			else {
 				servers[i]->sendResponse("200 OK", response);
 			}
-			// Analizar informacion recibida:
-			// Ej.: saveTx(...)
-			// Ej.: saveBlock(...)
-			// Ej.: appendFilter(...)
-			// ...
-			// Decidir que responder
 		}
 
 		if (servers[i]->writeResponse()) {
@@ -329,6 +324,7 @@ string FullNode::handleHttpRequest(string request) {
 	unsigned int nCommand = 0;
 	string uri;			//Uri del mensaje (ej: 127.0.0.1:80/eda_coin/send_block/ )
 	string method;		//Method: GET o POST
+	string response = "";
 
 	unsigned int i = 0;
 	while(i < request.size()){
@@ -341,32 +337,17 @@ string FullNode::handleHttpRequest(string request) {
 			}
 
 			if (nCommand == 0) {	//First Line
-				int uriIndex;
-				int uriLength;
-				size_t foundGet = command.find("GET ");	//Posicion del texto "GET "
-				size_t foundPost = command.find("POST ");
-				size_t foundHttp = command.find("HTTP");
-				if (foundGet != string::npos) {
-					uriIndex = foundGet + 4;
-					method = "GET";
-				}
-				if (foundPost != string::npos) {
-					uriIndex = foundPost + 5;
-					method = "POST";
-				}
-				if (foundHttp != string::npos) {
-					uriLength = foundHttp - uriIndex - 1;
-					uri = command.substr(uriIndex, uriLength);
-				}
+				findURIandMethod(command, uri, method);
 			}
-			else {
+			else if (method == "POST") {
 				json j = json::parse(command, nullptr, false);
 
 				if (j.is_discarded() == false) {
-					//hacer cosas en funcion del uri
-
-					return "{\"result\":true,\"errorCode\":null}";
+					response += handlePOSTcommand(j, uri);
 				}
+			}
+			else if (method == "GET") {
+				response += handleGETcommand(command, uri);
 			}
 
 			nCommand++;
@@ -375,5 +356,66 @@ string FullNode::handleHttpRequest(string request) {
 		i++;
 	}
 
-	return "";
+	return response;
+}
+
+void FullNode::findURIandMethod(string command, string& uri, string& method) {
+	int uriIndex;
+	int uriLength;
+	size_t foundGet = command.find("GET ");	//Posicion del texto "GET "
+	size_t foundPost = command.find("POST ");
+	size_t foundHttp = command.find("HTTP");
+	if (foundGet != string::npos) {
+		uriIndex = foundGet + 4;
+		method = "GET";
+	}
+	if (foundPost != string::npos) {
+		uriIndex = foundPost + 5;
+		method = "POST";
+	}
+	if (foundHttp != string::npos) {
+		uriLength = foundHttp - uriIndex - 1;
+		uri = command.substr(uriIndex, uriLength);
+	}
+	else {
+		uri = "";
+	}
+}
+
+string FullNode::handleGETcommand(string command, string uri) {
+	if (uri == "/eda_coin/get_block_header/") {
+		size_t foundId = command.find("block_id:");
+		if (foundId != string::npos) {
+			string idString = command.substr(foundId + 9);
+
+			json j = generateBlockHeader(idString);
+			if (j.empty() == false) {
+				return j.dump();
+			}
+			else {
+				return "{\"result\":false,\"errorCode\":unknown_id}";
+			}
+		}
+	}
+	else {
+		return "";
+	}
+}
+
+string FullNode::handlePOSTcommand(json j, string uri) {
+	if (uri == "/eda_coin/send_block/") {
+		blockChain.appendBlock(createBlock(j));
+	}
+	else if (uri == "/eda_coin/send_tx") {
+		pendingTx.push_back(createTx(j));
+	}
+	else if (uri == "/eda_coin/send_filter") {
+		string id = j["Id"];
+		subscriptors.insert(id);
+	}
+	else {
+		return "";
+	}
+
+	return "{\"result\":true,\"errorCode\":null}";
 }

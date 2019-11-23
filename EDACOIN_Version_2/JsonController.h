@@ -12,14 +12,17 @@ using json = nlohmann::json;
 typedef ALLEGRO_EVENT Evento;
 typedef ALLEGRO_EVENT_QUEUE* ColaDeEvento;
 
+Block createBlock(json j);
+vector<Transaction> createTxVector(json j);
+Transaction createTx(json j);
+Filter createFilter(json j);
+
 class JsonController :public Controller {
 public:
 	JsonController(BlockchainModel& modelo);
 	~JsonController();
 	void update(void*);
 	void cycle(void);
-	vector<Transaction> createTxVector(json j);
-	Filter createFilter(json j);
 
 private:
 	void getEvent(void);

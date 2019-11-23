@@ -1,6 +1,9 @@
 #pragma once
 #include "Node.h"
 #include "Server.h"
+#include <set>
+
+using namespace std;
 
 using p2pstate = enum { IDLE = 0, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NETWORK_CREATED };
 
@@ -44,10 +47,15 @@ private:
 
 	//Server
 	string handleHttpRequest(string request);
+	void findURIandMethod(string command, string& uri, string& method);
+	string handleGETcommand(string command, string uri);
+	string handlePOSTcommand(json j, string uri);
 	
 	bool pingStatus;
 	unsigned timer;
 	BlockchainModel blockChain;
 	p2pstate state;
 	vector<Server*> servers;
+	set<string> subscriptors;
+	vector<Transaction> pendingTx;
 };

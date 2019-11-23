@@ -30,6 +30,16 @@ void BlockchainModel::appendBlock(vector<Transaction> vTx, int height, int nonce
 	notifyAllObservers();
 }
 
+void BlockchainModel::appendBlock(Block block)
+{
+	block.MerkleTree = createTree(block.vTx);
+
+	if (trees[block.MerkleTree].size() > 0)
+		block.calculatedMerkleRoot = trees[block.MerkleTree].back().newIDstr;
+	blockchain.push_back(block);
+	notifyAllObservers();
+}
+
 void BlockchainModel::setFileIndex(int fileIndex)
 {
 	this->fileIndex = fileIndex;

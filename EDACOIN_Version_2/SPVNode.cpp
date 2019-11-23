@@ -11,7 +11,7 @@ void SPVNode::sendFilter(string nodeid) {
 
 void SPVNode::getBlockHeader(string nodeid, string blockid) {
 	if (isNeighbour(nodeid)) {
-		httpGet(nodeid, "/eda_coin/get_block_header/", "'block_id':" + blockid);
+		httpGet(nodeid, "/eda_coin/get_block_header/", "block_id:" + blockid);
 	}
 }
 
