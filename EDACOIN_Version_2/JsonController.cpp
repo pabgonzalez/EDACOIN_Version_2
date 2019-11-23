@@ -58,6 +58,7 @@ Block createBlock(json j) {
 		auto nTx = j["nTx"];
 		return Block(createTxVector(j["tx"]), height, nonce, blockid, previousblockid, merkleroot, nTx);
 	}
+	return Block();
 }
 
 vector<Transaction> createTxVector(json j) {
@@ -76,18 +77,18 @@ vector<Transaction> createTxVector(json j) {
 Transaction createTx(json j) {
 	Transaction tx;
 	if (!j.empty() && j.is_object()) {
-		tx.txid = (string)j["txid"];
+		tx.txid = j["txid"];
 		tx.nTxin = j["nTxin"];
 		for (int n = 0; n < j["nTxin"]; n++) {
 			vinType vin;
-			vin.blockid = (string)((j["vin"])[n])["blockid"];
-			vin.txid = (string)((j["vin"])[n])["txid"];
+			vin.blockid = ((j["vin"])[n])["blockid"];
+			vin.txid = ((j["vin"])[n])["txid"];
 			tx.appendVin(vin);
 		}
 		tx.nTxout = j["nTxout"];
 		for (int n = 0; n < j["nTxout"]; n++) {
 			voutType vout;
-			vout.publicid = (string)((j["vout"])[n])["publicid"];
+			vout.publicid = ((j["vout"])[n])["publicid"];
 			vout.amount = ((j["vout"])[n])["amount"];
 			tx.appendVout(vout);
 		}
@@ -99,8 +100,8 @@ Filter createFilter(json j) {
 	Filter f = {"", "", 0};
 	if (!j.empty()) {
 		for (auto& element : j) {
-			f.publicid = (string)element["publicid"];
-			f.ip = (string)element["ip"];
+			f.publicid = element["publicid"];
+			f.ip = element["ip"];
 			f.port = element["port"];
 		}
 		return f;
