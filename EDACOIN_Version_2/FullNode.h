@@ -46,8 +46,7 @@ private:
 	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
 
 	//Server
-	string handleHttpRequest(string request);
-	void findURIandMethod(string command, string& uri, string& method);
+	string respondToCommands(vector<string> commands, string uri, string method);
 	string handleGETcommand(string command, string uri);
 	string handlePOSTcommand(json j, string uri);
 	

@@ -15,6 +15,9 @@ Server::Server(unsigned int port) {
 	requestReady = false;
 	writingResponse = false;
 	response = "";
+	uri = "";
+	method = "";
+	commands.clear();
 }
 
 Server::~Server() {
@@ -56,6 +59,8 @@ bool Server::readRequest() {
 			readingRequest = false;
 			requestReady = true;
 
+			parseHttpRequest(receivedMessage);
+
 			return true;
 		}
 	}
@@ -91,4 +96,54 @@ void Server::sendResponse(string status, string content) {
 	response += status + '\n';
 	response += content;
 	writingResponse = true;
+}
+
+void Server::parseHttpRequest(string request) {
+	commands.clear();
+	string command;
+	unsigned int nCommand = 0;
+
+	unsigned int i = 0;
+	while (i < request.size()) {
+		if (request[i] != '\r' && request[i] != '\n') {
+			command = "";
+			while (request[i] != '\r' && request[i] != '\n') {
+				command += request[i];
+				i++;
+				if (i == request.size()) break;
+			}
+
+			if (nCommand == 0) {	//First Line
+				findURIandMethod(command, uri, method);
+			}
+			else {
+				commands.push_back(command);
+			}
+			nCommand++;
+		}
+		i++;
+	}
+}
+
+void Server::findURIandMethod(string command, string& uri, string& method) {
+	int uriIndex = 0;
+	int uriLength = 0;
+	size_t foundGet = command.find("GET ");	//Posicion del texto "GET "
+	size_t foundPost = command.find("POST ");
+	size_t foundHttp = command.find("HTTP");
+	if (foundGet != string::npos) {
+		uriIndex = foundGet + 4;
+		method = "GET";
+	}
+	if (foundPost != string::npos) {
+		uriIndex = foundPost + 5;
+		method = "POST";
+	}
+	if (foundHttp != string::npos) {
+		uriLength = foundHttp - uriIndex - 1;
+		uri = command.substr(uriIndex, uriLength);
+	}
+	else {
+		uri = "";
+	}
 }

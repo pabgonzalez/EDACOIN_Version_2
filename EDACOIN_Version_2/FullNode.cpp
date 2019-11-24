@@ -299,7 +299,10 @@ void FullNode::cycleConnections() {
 	}
 	for (unsigned int i = 0; i < servers.size(); i++) {
 		if (servers[i]->readRequest()) {
-			string response = handleHttpRequest(servers[i]->getRequest());
+			string uri = servers[i]->getURI();
+			string method = servers[i]->getMethod();
+			string response = respondToCommands(servers[i]->getCommands(), uri, method);
+
 			if (response.size() == 0) {
 				servers[i]->sendResponse("404 Not Found", response);
 			}
@@ -319,67 +322,23 @@ void FullNode::cycleConnections() {
 	}
 }
 
-string FullNode::handleHttpRequest(string request) {
-	string command;
-	unsigned int nCommand = 0;
-	string uri;			//Uri del mensaje (ej: 127.0.0.1:80/eda_coin/send_block/ )
-	string method;		//Method: GET o POST
+string FullNode::respondToCommands(vector<string> commands, string uri, string method) {
 	string response = "";
 
-	unsigned int i = 0;
-	while(i < request.size()){
-		if (request[i] != '\r' && request[i] != '\n') {
-			command = "";
-			while (request[i] != '\r' && request[i] != '\n') {
-				command += request[i];
-				i++;
-				if (i == request.size()) break;
-			}
+	for (unsigned int i = 0; i < commands.size(); i++) {
+		if (method == "POST") {
+			json j = json::parse(commands[i], nullptr, false);
 
-			if (nCommand == 0) {	//First Line
-				findURIandMethod(command, uri, method);
+			if (j.is_discarded() == false) {
+				response += handlePOSTcommand(j, uri);
 			}
-			else if (method == "POST") {
-				json j = json::parse(command, nullptr, false);
-
-				if (j.is_discarded() == false) {
-					response += handlePOSTcommand(j, uri);
-				}
-			}
-			else if (method == "GET") {
-				response += handleGETcommand(command, uri);
-			}
-
-			nCommand++;
 		}
-
-		i++;
+		else if (method == "GET") {
+			response += handleGETcommand(commands[i], uri);
+		}
 	}
 
 	return response;
-}
-
-void FullNode::findURIandMethod(string command, string& uri, string& method) {
-	int uriIndex;
-	int uriLength;
-	size_t foundGet = command.find("GET ");	//Posicion del texto "GET "
-	size_t foundPost = command.find("POST ");
-	size_t foundHttp = command.find("HTTP");
-	if (foundGet != string::npos) {
-		uriIndex = foundGet + 4;
-		method = "GET";
-	}
-	if (foundPost != string::npos) {
-		uriIndex = foundPost + 5;
-		method = "POST";
-	}
-	if (foundHttp != string::npos) {
-		uriLength = foundHttp - uriIndex - 1;
-		uri = command.substr(uriIndex, uriLength);
-	}
-	else {
-		uri = "";
-	}
 }
 
 string FullNode::handleGETcommand(string command, string uri) {

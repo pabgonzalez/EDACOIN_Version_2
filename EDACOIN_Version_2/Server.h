@@ -15,12 +15,23 @@ public:
 	~Server();
 	bool acceptConnection();	//Acepta la conexion y pasa a readingRequest
 	bool readRequest();			//Lee el mensaje y lo guarda en receivedMessage
-	bool writeResponse();		
-	string getRequest();		//Devuelve receivedMessage
+	bool writeResponse();
 	void sendResponse(string status, string content);	//Envia la respuesta deseada
 
+	string getRequest();		//Devuelve receivedMessage
+	string getURI() { return uri; }
+	string getMethod() { return method; }
+	int getCommandAmount() { return commands.size(); }
+	vector<string> getCommands() { return commands; }
+	string getCommand(int i) { return commands[i]; }
+
 private:
-	//Server side
+	void parseHttpRequest(string request);
+	void findURIandMethod(string command, string& uri, string& method);
+
+	string uri;
+	string method;
+	vector<string> commands;
 	string receivedMessage;
 	bool readingRequest;
 	bool requestReady;
