@@ -14,8 +14,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-typedef enum {NONE, POST, GET} HTTPMSG;
-
 typedef struct {
 	string IP;
 	int port;
@@ -36,7 +34,7 @@ public:
 	int getNodePort();
 	SocketType getNeighbourSockets(string ID);
 	string getResponse() { return httpResponse; }
-	HTTPMSG getHttpMessage() { return httpMessage; }
+	string getHttpMethod() { return httpMethod; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	
 	//Senders (POST)
@@ -72,5 +70,5 @@ protected:
 	CURLM* multiHandle;
 	string httpResponse;
 	int performingFetch;
-	HTTPMSG httpMessage;	//Vale NONE, POST O GET
+	string httpMethod;	//Vale POST O GET
 };

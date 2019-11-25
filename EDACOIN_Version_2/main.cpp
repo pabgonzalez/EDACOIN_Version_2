@@ -32,22 +32,7 @@ int main() {
 
 		LocalNodes localNodes;
 		NodeController nodeControl(localNodes);
-		FullNode full1({ "127.0.0.1", 10000 }, "Jorge");
-		FullNode full2({ "127.0.0.1", 10001 }, "Ricardo");
-		FullNode full3({ "127.0.0.1", 10002 }, "Ernesto");
-		full1.appendNeighbourNode(full2);
-		full1.appendNeighbourNode(full3);
-
-		full2.appendNeighbourNode(full1);
-		full2.appendNeighbourNode(full3);
-
-		full3.appendNeighbourNode(full1);
-		full3.appendNeighbourNode(full2);
-
-		localNodes.appendNode(&full1);
-		localNodes.appendNode(&full2);
-		localNodes.appendNode(&full3);
-
+		
 		obsManager.addObserver(&blockViewerControl);
 		obsManager.addObserver(&view);
 		obsManager.addObserver(&nodeControl);

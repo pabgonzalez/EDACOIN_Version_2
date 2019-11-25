@@ -11,7 +11,7 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 
 	//Client
 	httpResponse = "";
-	httpMessage = NONE;
+	httpMethod = "";
 	performingFetch = 0;
 	curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -54,7 +54,7 @@ void Node::sendTx(string nodeid, Transaction tx) {
 
 void Node::httpPost(string nodeid, string addr, string msg) {
 	httpResponse = "";
-	httpMessage = POST;
+	httpMethod = "POST";
 
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
@@ -85,7 +85,7 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 
 void Node::httpGet(string nodeid, string addr, string header) {
 	httpResponse = "";
-	httpMessage = GET;
+	httpMethod = "GET";
 
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();

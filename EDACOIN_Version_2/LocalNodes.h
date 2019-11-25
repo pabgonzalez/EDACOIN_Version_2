@@ -27,13 +27,17 @@ public:
 
 class LocalNodes : public Subject {
 public:
+	~LocalNodes();
+
 	int getFullNodesSize() { return fullNodes.size(); }
 	int getSPVNodesSize() { return spvNodes.size(); }
 	FullNodeInfo& getFullNode(int i) { return fullNodes[i]; }
 	SPVNodeInfo& getSPVNode(int i) { return spvNodes[i]; }
 
-	void appendNode(FullNode* node) { fullNodes.push_back(FullNodeInfo(node)); notifyAllObservers(); }
-	void appendNode(SPVNode* node) { spvNodes.push_back(SPVNodeInfo(node)); notifyAllObservers(); }
+	void addFullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
+	void addSPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
+	void appendNode(FullNode* node);
+	void appendNode(SPVNode* node);
 protected:
 	vector<FullNodeInfo> fullNodes;
 	vector<SPVNodeInfo> spvNodes;

@@ -6,7 +6,7 @@
 
 class NodeController : public Observer {
 public:
-	NodeController(LocalNodes& mod) : m(mod) {}
+	NodeController(LocalNodes& mod);
 	void update(void*) {}
 	void cycle(void);
 private:

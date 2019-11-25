@@ -6,8 +6,56 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <fstream>
+
+NodeController::NodeController(LocalNodes& mod) : m(mod) {
+	
+}
 
 void NodeController::cycle(void) {
+	static string newip = "";
+	static string newport = "";
+	static string newid = "";
+
+	ImGui::Begin("Node Controller");
+
+	char ip[50];
+	char port[50];
+	char id[50];
+	sprintf(ip, newip.c_str());
+	sprintf(port, newport.c_str());
+	sprintf(id, newid.c_str());
+	ImGui::InputText("Ingresar IP", ip, sizeof(ip));
+	ImGui::InputText("Ingresar Puerto", port, sizeof(port));
+	ImGui::InputText("Ingresar ID", id, sizeof(id));
+	newip = ip;
+	newport = port;
+	newid = id;
+
+	if (ImGui::Button("Crear un Full Service Node")) {
+		map<string, SocketType> neighbours;
+		//Leer un archivo con la informacion de los vecinos
+
+		/*for (unsigned int i = 0; i < m.getFullNodesSize(); i++) {
+			FullNode* n = m.getFullNode(i).fullNode;
+			neighbours[n->getNodeID()] = { n->getNodeIP(), n->getNodePort() };
+		}*/
+		m.addFullNode({ ip, stoi(port) }, id, neighbours);
+	}
+	if (ImGui::Button("Crear un SPV Node")) {
+		map<string, SocketType> neighbours;
+		//Leer un archivo con la informacion de los vecinos
+
+		/*for (unsigned int i = 0; i<2 && i < m.getFullNodesSize(); i++) {
+			FullNode* n = m.getFullNode(i).fullNode;
+			neighbours[n->getNodeID()] = { n->getNodeIP(), n->getNodePort() };
+		}*/
+		m.addSPVNode({ ip, stoi(port) }, id, neighbours);
+	}
+
+	ImGui::End();	//Node Controller
+
+
 	for (int i = 0; i < m.getFullNodesSize(); i++) {
 		FullNodeInfo& info = m.getFullNode(i);
 		FullNode* n = info.fullNode;
@@ -17,7 +65,7 @@ void NodeController::cycle(void) {
 			n->performFetch();
 		}
 		else {
-			if (n->getHttpMessage() == POST) {
+			if (n->getHttpMethod() == "POST") {
 				/*json response(n->getResponse());
 				if (response["result"] == true) {
 					cout << "No error in response" << endl;
@@ -27,7 +75,7 @@ void NodeController::cycle(void) {
 					cout << "Error in response";
 				}*/
 			}
-			else if (n->getHttpMessage() == GET) {
+			else if (n->getHttpMethod() == "GET") {
 				json response(n->getResponse());
 
 				//Received Block Header, do something
@@ -118,7 +166,7 @@ void NodeController::cycle(void) {
 		ImGui::End();
 	}
 	for (int i = 0; i < m.getSPVNodesSize(); i++) {
-		SPVNodeInfo info = m.getSPVNode(i);
+		/*SPVNodeInfo info = m.getSPVNode(i);
 		SPVNode* n = info.spvNode;
 
 		//Client
@@ -126,13 +174,13 @@ void NodeController::cycle(void) {
 			n->performFetch();
 		}
 		else {
-			if (n->getHttpMessage() == POST) {
+			if (n->getHttpMethod() == "POST") {
 				json response(n->getResponse());
 				if (response["result"] == true) {
 					//Yay for me
 				}
 			}
-			else if (n->getHttpMessage() == GET) {
+			else if (n->getHttpMethod() == "GET") {
 				json response(n->getResponse());
 
 				//Received Block Header, do something
@@ -163,7 +211,7 @@ void NodeController::cycle(void) {
 			ImGui::Text("ID del vecino", NeighID);
 			ImGui::InputFloat("Monto", &amount, 0.1f, 0.5f);
 			if (ImGui::Button("Aceptar")) {
-				/*realizar transaccion*/
+				//realizar transaccion
 			}
 			ImGui::End();
 
@@ -173,10 +221,8 @@ void NodeController::cycle(void) {
 			char NeighID2[64] = "Vecino 2";
 			ImGui::Text("Id", NeighID1);
 			ImGui::Text("Id", NeighID2);
-			/*
-			Cambiar vecinos
-			*/
+			//Cambiar vecinos
 		}
-
+		*/
 	}
 }
