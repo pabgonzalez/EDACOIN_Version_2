@@ -17,6 +17,8 @@ void NodeController::cycle(void) {
 	static string newport = "";
 	static string newid = "";
 
+
+	//GUI
 	ImGui::Begin("Node Controller");
 
 	char ip[50];
@@ -53,8 +55,57 @@ void NodeController::cycle(void) {
 		m.addSPVNode({ ip, stoi(port) }, id, neighbours);
 	}
 
-	ImGui::End();	//Node Controller
+	ImGui::NewLine();
+	ImGui::Separator();
 
+	ImGui::Columns(2);
+
+	ImGui::BeginChild("LocalNodeList", ImVec2(ImGui::GetColumnWidth() - 10, 300));
+
+	ImGui::Text("Local Full Service Nodes");
+	ImGui::Separator();
+
+	bool nodeSelected = false;
+	int nodeIndex = -1;
+	if(m.isSelectedNodeFull()) nodeIndex = m.getSelectedNodeIndex();
+	for (int i = 0; i < m.getFullNodesSize(); i++) {
+		string nodeid = m.getFullNode(i).fullNode->getNodeID();
+		nodeSelected = ImGui::MenuItem((" " + nodeid).c_str(), nullptr, (nodeIndex == i) ? true : false);
+		if (nodeSelected) m.setSelectedNode(i, true);
+	}
+
+	ImGui::NewLine();
+	ImGui::Separator();
+	ImGui::Text("Local Simplified Payment Verification Nodes");
+	ImGui::Separator();
+	nodeSelected = false;
+	nodeIndex = -1;
+	if (m.isSelectedNodeFull() == false) nodeIndex = m.getSelectedNodeIndex();
+	for (int i = 0; i < m.getSPVNodesSize(); i++) {
+		string nodeid = m.getSPVNode(i).spvNode->getNodeID();
+		nodeSelected = ImGui::MenuItem((" " + nodeid).c_str(), nullptr, (nodeIndex == i) ? true : false);
+		if (nodeSelected) m.setSelectedNode(i, false);
+	}
+	ImGui::EndChild();	//Lista de Nodos
+
+	ImGui::NextColumn();
+	ImGui::BeginChild("Opened Node", ImVec2(ImGui::GetColumnWidth() - 10, 300));
+
+	if (m.isAnyNodeSelected()) {
+		if (m.isSelectedNodeFull()) {
+			showFullNodeGUI(m.getSelectedFullNode());
+		}
+		else {
+			showSPVNodeGUI(m.getSelectedSPVNode());
+		}
+	}
+
+	ImGui::EndChild();	//Opened Node
+	ImGui::Columns();
+	ImGui::Separator();
+	ImGui::End();
+
+	//Server y Client
 
 	for (int i = 0; i < m.getFullNodesSize(); i++) {
 		FullNodeInfo& info = m.getFullNode(i);
@@ -84,89 +135,10 @@ void NodeController::cycle(void) {
 
 		//Server
 		n->cycleConnections();
-
-		//Full Node GUI
-		ImGui::Begin(("Full Node " + n->getNodeID()).c_str());
-
-		ImGui::Text(("ID: " + n->getNodeID()).c_str());
-		ImGui::Text(("IP: " + n->getNodeIP()).c_str());
-		ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
-		ImGui::Separator();
-		ImGui::Text("Conectarse con otro nodo");
-		char id[50];
-		sprintf(id, info.neighbourID.c_str());
-		ImGui::InputText("Ingresar ID", id, sizeof(id));
-		info.neighbourID = id;
-		ImGui::Separator();
-
-		if (ImGui::Button("Boton de prueba")) {
-		}
-
-		ImGui::Separator();
-
-		int amount = info.amount;
-		ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
-		info.amount = amount;
-		ImGui::SameLine();
-		if (ImGui::Button("Transferir")) {
-			vector<vinType> vin;
-			vin.push_back({ "blockid-dummy", "txid-dummy" });
-			vector<voutType> vout;
-			vout.push_back({ id, amount });
-			Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
-			n->sendTx(id, tx);
-		}
-		ImGui::Separator();
-		if (ImGui::Button("Ver Bloques")) {
-			ImGui::Begin("Bloques");
-			for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
-				bool selectedBlock = n->getBlockchain().getBlockSelected(i);
-				ImGui::Checkbox(("##Bloque " + to_string(i)).c_str(), &selectedBlock);
-				n->getBlockchain().setBlockSelected(i, selectedBlock);
-				n->getBlockchain().setBlockShowingInfo(i, true);
-				n->getBlockchain().setBlockShowingInfo(i, false);
-			}
-
-			if (ImGui::Button("Seleccionar todos")) {
-				for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
-					n->getBlockchain().setBlockSelected(i, true);
-				}
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Quitar seleccion")) {
-				for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
-					n->getBlockchain().setBlockSelected(i, false);
-				}
-			}
-			if (ImGui::Button("Abrir Bloques")) {
-				for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
-					if (n->getBlockchain().getBlockSelected(i)) {
-						n->getBlockchain().setBlockOpened(i, true);
-					}
-					n->getBlockchain().setBlockSelected(i, false);
-				}
-			}
-
-			ImGui::End();
-		}
-		if (ImGui::Button("Agregar vecino")) {
-			char NeighID[64];
-			char NeighPORT[64];
-			char NeighIP[64];
-			ImGui::Begin("New Neighbour");
-			ImGui::Text("ID del vecino", NeighID);
-			ImGui::Text("IP del vecino", NeighIP);
-			ImGui::Text("PORT del vecino", NeighPORT);
-			if (ImGui::Button("Aceptar")) {
-				/*agregar vecino*/
-			}
-			ImGui::End();
-		}
-
-		ImGui::End();
 	}
+
 	for (int i = 0; i < m.getSPVNodesSize(); i++) {
-		/*SPVNodeInfo info = m.getSPVNode(i);
+		/*SPVNodeInfo& info = m.getSPVNode(i);
 		SPVNode* n = info.spvNode;
 
 		//Client
@@ -177,7 +149,11 @@ void NodeController::cycle(void) {
 			if (n->getHttpMethod() == "POST") {
 				json response(n->getResponse());
 				if (response["result"] == true) {
+					cout << "No error in response" << endl;
 					//Yay for me
+				}
+				else {
+					cout << "Error in response";
 				}
 			}
 			else if (n->getHttpMethod() == "GET") {
@@ -187,42 +163,84 @@ void NodeController::cycle(void) {
 			}
 		}
 
-		//SPV Node GUI
-		ImGui::Begin(("SPV Node " + n->getNodeID()).c_str());
-
-		ImGui::Text(("ID: " + n->getNodeID()).c_str());
-		ImGui::Text(("IP: " + n->getNodeIP()).c_str());
-		ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
-		ImGui::Separator();
-		ImGui::Text("Conectarse con otro nodo");
-		char id[50];
-		sprintf(id, info.neighbourID.c_str());
-		ImGui::InputText("Ingresar ID", id, sizeof(id));
-		info.neighbourID = id;
-
-		if (ImGui::Button("Boton de prueba")) {
-			n->sendFilter(id);
-		}
-		if (ImGui::Button("Transferencia")) {
-			//n->httpGet(id, "/test.html");
-			char NeighID[64];
-			float amount = 0;
-			ImGui::Begin("Transfer");
-			ImGui::Text("ID del vecino", NeighID);
-			ImGui::InputFloat("Monto", &amount, 0.1f, 0.5f);
-			if (ImGui::Button("Aceptar")) {
-				//realizar transaccion
-			}
-			ImGui::End();
-
-		}
-		if (ImGui::Button("Ver Vecinos")) {
-			char NeighID1[64] = "Vecino 1";
-			char NeighID2[64] = "Vecino 2";
-			ImGui::Text("Id", NeighID1);
-			ImGui::Text("Id", NeighID2);
-			//Cambiar vecinos
-		}
-		*/
+		//Server
+		n->cycleConnections();*/
 	}
+}
+
+void NodeController::showFullNodeGUI(FullNodeInfo& info) {
+	FullNode* n = info.fullNode;
+
+	//Full Node GUI
+	ImGui::Text(("ID: " + n->getNodeID()).c_str());
+	ImGui::Text(("IP: " + n->getNodeIP()).c_str());
+	ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
+	ImGui::Separator();
+	ImGui::Text("Conectarse con otro nodo");
+	char id[50];
+	sprintf(id, info.neighbourID.c_str());
+	ImGui::InputText("Ingresar ID", id, sizeof(id));
+	info.neighbourID = id;
+	ImGui::Separator();
+
+	int amount = info.amount;
+	ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
+	info.amount = amount;
+	ImGui::SameLine();
+	if (ImGui::Button("Transferir")) {
+		vector<vinType> vin;
+		vin.push_back({ "blockid-dummy", "txid-dummy" });
+		vector<voutType> vout;
+		vout.push_back({ id, amount });
+		Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
+		n->sendTx(id, tx);
+	}
+	ImGui::Separator();
+	if (ImGui::Button("Ver Bloques")) {
+		ImGui::Begin("Bloques");
+		for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
+			bool selectedBlock = n->getBlockchain().getBlockSelected(i);
+			ImGui::Checkbox(("##Bloque " + to_string(i)).c_str(), &selectedBlock);
+			n->getBlockchain().setBlockSelected(i, selectedBlock);
+			n->getBlockchain().setBlockShowingInfo(i, true);
+			n->getBlockchain().setBlockShowingInfo(i, false);
+		}
+
+		if (ImGui::Button("Seleccionar todos")) {
+			for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
+				n->getBlockchain().setBlockSelected(i, true);
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Quitar seleccion")) {
+			for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
+				n->getBlockchain().setBlockSelected(i, false);
+			}
+		}
+		if (ImGui::Button("Abrir Bloques")) {
+			for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
+				if (n->getBlockchain().getBlockSelected(i)) {
+					n->getBlockchain().setBlockOpened(i, true);
+				}
+				n->getBlockchain().setBlockSelected(i, false);
+			}
+		}
+
+		ImGui::End();
+	}
+	if (ImGui::Button("Agregar vecino")) {
+		char NeighID[64];
+		char NeighPORT[64];
+		char NeighIP[64];
+		ImGui::Begin("New Neighbour");
+		ImGui::Text("ID del vecino", NeighID);
+		ImGui::Text("IP del vecino", NeighIP);
+		ImGui::Text("PORT del vecino", NeighPORT);
+		if (ImGui::Button("Aceptar")) {
+			/*agregar vecino*/
+		}
+	}
+}
+
+void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 }

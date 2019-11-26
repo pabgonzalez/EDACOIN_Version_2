@@ -27,7 +27,15 @@ public:
 
 class LocalNodes : public Subject {
 public:
+	LocalNodes();
 	~LocalNodes();
+
+	void setSelectedNode(int index, bool isFullNode);
+	bool isSelectedNodeFull() { return selectedIsFull; }
+	int getSelectedNodeIndex() { return selectedNodeIndex; }
+	FullNodeInfo& getSelectedFullNode() { return getFullNode(selectedNodeIndex); }
+	SPVNodeInfo& getSelectedSPVNode() { return getSPVNode(selectedNodeIndex); }
+	bool isAnyNodeSelected();
 
 	int getFullNodesSize() { return fullNodes.size(); }
 	int getSPVNodesSize() { return spvNodes.size(); }
@@ -41,4 +49,7 @@ public:
 protected:
 	vector<FullNodeInfo> fullNodes;
 	vector<SPVNodeInfo> spvNodes;
+
+	int selectedNodeIndex;
+	bool selectedIsFull;
 };
