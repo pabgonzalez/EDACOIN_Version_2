@@ -25,9 +25,10 @@ public:
 	json generateMerkleBlock(string blockid, string txid);
 	json generateBlockHeader(string blockid);
 
+
 	//FSM
-	void p2pNetFSM();
-	vector<vector<bool>> p2pAlgorithm(map<string, SocketType> Nodes);
+	void p2pNetFSM(void);
+	json p2pAlgorithm(map<string, SocketType> Nodes);
 
 	//Server
 	void cycleConnections();
@@ -44,6 +45,9 @@ private:
 	bool checkFull(vector<vector<bool>> m, int n, int i);
 	bool checkFullRare(vector<vector<bool>> m, int n, int i);
 	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
+
+	//flooding
+	void flood(pair<string, SocketType> emisor, Transaction tx);
 
 	//Server
 	string respondToCommands(vector<string> commands, string uri, string method);

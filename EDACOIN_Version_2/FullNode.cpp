@@ -133,7 +133,10 @@ void FullNode::p2pNetFSM() {
 	switch (state) {
 	case IDLE:
 		if (pingStatus == true)
+		{
+			//responde NETWORK NOT READY
 			state = WAITING_LAYOUT;
+		}
 		else {
 			this_thread::sleep_for(chrono::milliseconds(1));
 			if (!(--timer))
@@ -153,7 +156,8 @@ void FullNode::p2pNetFSM() {
 	}
 }
 
-vector<vector<bool>> FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
+
+json FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 {
 	vector<string> IDs;
 	for (auto const& element : Nodes)
@@ -206,7 +210,22 @@ vector<vector<bool>> FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 		}
 		cout << endl;
 	}
-	return adjacencyMatrix;
+
+	//write Layout
+	json j;
+	for (int i = 0; i < adjacencyMatrix.front().size(); i++)
+	{
+		j["nodes"] += IDs[i];
+		for (int k = i; k < adjacencyMatrix.front().size(); k++)
+		{
+			if (adjacencyMatrix[i][k] == true)
+			{
+				j["edges"] += { {"target1", IDs[i]}, { "target2", IDs[k] }};
+			}
+		}
+	}
+
+	return j;
 }
 
 bool FullNode::checkFull(vector<vector<bool>> m, int n, int i)
@@ -289,6 +308,24 @@ bool FullNode::isConnected(vector<vector<bool>> adjacencyMatrix, unsigned qNodes
 	}
 	return true;
 }
+
+//flooding
+void FullNode:: flood(pair<string, SocketType> emisor, Transaction tx)
+{
+	//if(!txInBlockChain)
+	map<string, SocketType>::iterator it;
+	for (it = neighbourNodes.begin(); it != neighbourNodes.end(); ++it)
+	{
+		if (it->first != emisor.first)
+		{
+			sendTx(emisor.first, tx);
+		}
+	}
+	//saveTx
+}
+
+
+
 
 void FullNode::cycleConnections() {
 	vector<int> pendingErasing;
