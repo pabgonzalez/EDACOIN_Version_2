@@ -15,7 +15,6 @@ void NodeController::cycle(void) {
 	static int newport = 0;
 	static string newid = "";
 
-
 	//GUI
 	ImGui::Begin("Node Controller");
 
@@ -31,17 +30,9 @@ void NodeController::cycle(void) {
 	newport = port;
 	newid = id;
 
-	if (ImGui::Button("Crear un Full Service Node")) {
-		map<string, SocketType> neighbours;
-		//Leer un archivo con la informacion de los vecinos
-		m.addFullNode({ ip, port }, id, neighbours);
-	}
+	if (ImGui::Button("Crear un Full Service Node")) m.addFullNode({ ip, port }, id);
 	ImGui::SameLine();
-	if (ImGui::Button("Crear un SPV Node")) {
-		map<string, SocketType> neighbours;
-		//Leer un archivo con la informacion de los vecinos
-		m.addSPVNode({ ip, port }, id, neighbours);
-	}
+	if (ImGui::Button("Crear un SPV Node")) m.addSPVNode({ ip, port }, id);
 
 	ImGui::NewLine();
 	ImGui::Separator();

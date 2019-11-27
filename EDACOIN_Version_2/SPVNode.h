@@ -6,12 +6,14 @@
 class SPVNode: public Node
 {
 public:
-	SPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
+	SPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes = {});
 	~SPVNode();
 
 	void sendFilter(string nodeid);
 	void getBlockHeader(string nodeid, string blockid);
 	json generateFilter();
+
+	void chooseTwoNeighbours();
 
 	//Server
 	void cycleConnections();

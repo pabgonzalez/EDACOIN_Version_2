@@ -1,8 +1,9 @@
 #include "LocalNodes.h"
 
-LocalNodes::LocalNodes() {
+LocalNodes::LocalNodes(string p) {
 	selectedNodeIndex = -1;
 	selectedIsFull = false;
+	manifestPath = p;
 }
 
 LocalNodes::~LocalNodes() {
@@ -32,13 +33,16 @@ void LocalNodes::setSelectedNode(int index, bool isFullNode) {
 	notifyAllObservers();
 }
 
-void LocalNodes::addFullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes) {
-	FullNode* full = new FullNode(socket, ID, neighbourNodes);
+void LocalNodes::addFullNode(SocketType socket, string ID) {
+	FullNode* full = new FullNode(socket, ID);
+	full->setManifestPath(manifestPath);
 	appendNode(full);
 	notifyAllObservers();
 }
-void LocalNodes::addSPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes) {
-	SPVNode* spv = new SPVNode(socket, ID, neighbourNodes);
+void LocalNodes::addSPVNode(SocketType socket, string ID) {
+	SPVNode* spv = new SPVNode(socket, ID);
+	spv->setManifestPath(manifestPath);
+	spv->chooseTwoNeighbours();
 	appendNode(spv);
 	notifyAllObservers();
 }

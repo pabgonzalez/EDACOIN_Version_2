@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <map>
 #include "json.hpp"
+#include <fstream>
 #include "BlockchainModel.h"
 #define CURL_STATICLIB
 #include <curl\curl.h>
@@ -37,6 +38,7 @@ public:
 	string getHttpMethod() { return httpMethod; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	map<string, SocketType> getNeighbours() { return neighbourNodes; }
+	map<string, SocketType> getNodesFromManifest();
 	
 	//Senders (POST)
 	void sendTx(string nodeid, Transaction tx);
@@ -47,6 +49,7 @@ public:
 
 	//setters
 	void setNodeSocket(SocketType socket);
+	void setManifestPath(string p) { manifestPath = p; }
 
 	//appenders
 	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
@@ -73,4 +76,6 @@ protected:
 	string httpResponse;
 	int performingFetch;
 	string httpMethod;	//Vale POST O GET
+
+	string manifestPath;	//Lista de nodos de la red
 };
