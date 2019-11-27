@@ -73,7 +73,7 @@ private:
 	int convertTransactionsToMerkleLeafs(vector<Transaction> vTx);
 	vector<MerkleNode> propagateTreeUp(vector<MerkleNode> tree, vector<MerkleNode> level);
 	void Print(vector<MerkleNode> tree);
-	unsigned int generateID(unsigned char* str);
+	//unsigned int generateID(unsigned char* str);
 
 	vector<vector<MerkleNode>> trees;
 	vector<Block> blockchain;

@@ -2,6 +2,14 @@
 #include <iostream>
 #include <cmath>
 
+#include <cryptopp/sha.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/oids.h>
+
 BlockchainModel::BlockchainModel() {
 	fileIndex = -1;
 	fileSelected = false;
@@ -119,15 +127,16 @@ int BlockchainModel::convertTransactionsToMerkleLeafs(vector<Transaction> vTx)
 	for (unsigned int i = 0; i < vTx.size(); i++)
 	{
 		
-		unsigned int newID = generateID((unsigned char*)vTx[i].txid.c_str());	//id del las hojas
-		char aux[BUFFER] = { '\0' };
-		sprintf_s(aux, sizeof(aux), "%08X", newID);		//pasa a ASCII
-		if (strlen(aux) != 8)
-		{
-			cout << "Error in length LEAF" << endl;
-		}
+		//unsigned int newID = generateID((unsigned char*)vTx[i].txid.c_str());	//id del las hojas
+		//char aux[BUFFER] = { '\0' };
+		//sprintf_s(aux, sizeof(aux), "%08X", newID);		//pasa a ASCII
+		//if (strlen(aux) != 8)
+		//{
+		//	cout << "Error in length LEAF" << endl;
+		//}
 		MerkleNode mn;
-		mn.newIDstr = aux;
+		//mn.newIDstr = aux;
+		mn.newIDstr = vTx[i].txid;
 		mn.isReal = true;
 		mn.level = (int)ceil(log2(vTx.size()));
 		leafs.push_back(mn);
@@ -153,16 +162,26 @@ vector<MerkleNode> BlockchainModel::propagateTreeUp(vector<MerkleNode> tree, vec
 	for (unsigned int i = 0; i < level.size(); i += 2)
 	{
 		string conc = level[i].newIDstr + level[i + 1].newIDstr;		//toma el par
-		unsigned int newID = generateID((unsigned char*)conc.c_str());		//id del padre
-		char temp[BUFFER] = { '\0' };
-		sprintf_s(temp, sizeof(temp), "%08X", newID);		//pasa a ASCII
+		//unsigned int newID = generateID((unsigned char*)conc.c_str());		//id del padre
+		//char temp[BUFFER] = { '\0' };
+		//sprintf_s(temp, sizeof(temp), "%08X", newID);		//pasa a ASCII
+		//if (strlen(temp) != 8)
+		//{
+		//	cout << "Error in length " << endl;
+		//}
+		CryptoPP::SHA256 hash;
+		uint8_t digest[CryptoPP::SHA256::DIGESTSIZE];
+		hash.CalculateDigest(digest, (uint8_t*)conc.c_str(), conc.length());
 
-		if (strlen(temp) != 8)
-		{
-			cout << "Error in length " << endl;
-		}
+		CryptoPP::HexEncoder encoder;
+		std::string parent;
+		encoder.Attach(new CryptoPP::StringSink(parent));
+		encoder.Put(digest, sizeof(digest));
+		encoder.MessageEnd();
+
 		MerkleNode mn;
-		mn.newIDstr = temp;
+		//mn.newIDstr = temp;
+		mn.newIDstr = parent;
 		mn.level = level[i].level - 1;
 
 		/*if (level[i].isReal == true)
@@ -184,14 +203,14 @@ vector<MerkleNode> BlockchainModel::propagateTreeUp(vector<MerkleNode> tree, vec
 	return propagateTreeUp(tree, nextLevel);
 }
 
-unsigned int BlockchainModel::generateID(unsigned char* str)
-{
-	unsigned int ID = 0;
-	int c;
-	while (c = *str++)
-		ID = c + (ID << 6) + (ID << 16) - ID;
-	return ID;
-}
+//unsigned int BlockchainModel::generateID(unsigned char* str)
+//{
+//	unsigned int ID = 0;
+//	int c;
+//	while (c = *str++)
+//		ID = c + (ID << 6) + (ID << 16) - ID;
+//	return ID;
+//}
 
 void BlockchainModel::Print(vector<MerkleNode> tree)
 {
