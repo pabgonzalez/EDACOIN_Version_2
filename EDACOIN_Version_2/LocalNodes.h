@@ -2,6 +2,8 @@
 #include "Subject.h"
 #include "FullNode.h"
 #include "SPVNode.h"
+#include "allegro5/allegro.h"
+
 
 class FullNodeInfo {	//Nodo + info del nodo para la GUI y demas
 public:
@@ -16,6 +18,9 @@ public:
 	string newip = "";		//IP del nuevo vecino
 	int newport = 0;		//Port del nuevo vecino
 	string newid = "";		//Id del nuevo vecino
+	ALLEGRO_BITMAP* graphNeighbours(void);
+	ALLEGRO_BITMAP* graph= NULL;
+	bool graphi = false;
 };
 
 class SPVNodeInfo {
@@ -36,7 +41,7 @@ public:
 
 class LocalNodes : public Subject {
 public:
-	LocalNodes();
+	LocalNodes(string p);
 	~LocalNodes();
 
 	void setSelectedNode(int index, bool isFullNode);
@@ -51,13 +56,18 @@ public:
 	FullNodeInfo& getFullNode(int i) { return fullNodes[i]; }
 	SPVNodeInfo& getSPVNode(int i) { return spvNodes[i]; }
 
-	void addFullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
-	void addSPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
+	void addFullNode(SocketType socket, string ID);
+	void addSPVNode(SocketType socket, string ID);
 	void appendNode(FullNode* node);
 	void appendNode(SPVNode* node);
+
+	void setManifestPath(string p) { manifestPath = p; }
+
 protected:
 	vector<FullNodeInfo> fullNodes;
 	vector<SPVNodeInfo> spvNodes;
+
+	string manifestPath;	//Lista de nodos de la red
 
 	int selectedNodeIndex;
 	bool selectedIsFull;

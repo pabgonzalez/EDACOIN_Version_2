@@ -35,6 +35,18 @@ json SPVNode::generateFilter() {
 	return j;
 }
 
+void SPVNode::chooseTwoNeighbours() {
+	map<string, SocketType> nodes = getNodesFromManifest();
+	map<string, SocketType>::iterator it;
+	int count = 0;
+	for (it = nodes.begin(); it != nodes.end() && count < 2; ++it) {
+		appendNeighbourNode(it->first, it->second);
+		count++;
+	}
+
+	//Se puede mejorar por algo random, falta de tiempo
+}
+
 void SPVNode::cycleConnections() {
 	server->acceptConnection();
 	if (server->readRequest()) {

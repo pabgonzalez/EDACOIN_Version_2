@@ -32,7 +32,7 @@ int main() {
 		//obsManager.addObserver(&blockViewerControl);
 		//obsManager.addObserver(&view);
 
-		LocalNodes localNodes;
+		LocalNodes localNodes("manifest.json");
 		NodeController nodeControl(localNodes);
 		obsManager.addObserver(&nodeControl);
 

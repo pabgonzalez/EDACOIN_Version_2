@@ -11,7 +11,7 @@ using p2pstate = enum { IDLE = 0, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NE
 class FullNode : public Node
 {
 public:
-	FullNode(SocketType socket = { "", 0 }, string ID = "", map<string, SocketType> neighbourNodes = {});
+	FullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes = {});
 	~FullNode();
 	
 	//getters
