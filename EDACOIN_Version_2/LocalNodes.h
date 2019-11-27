@@ -19,7 +19,8 @@ public:
 	int newport = 0;		//Port del nuevo vecino
 	string newid = "";		//Id del nuevo vecino
 	ALLEGRO_BITMAP* graphNeighbours(void);
-	ALLEGRO_BITMAP* graph;
+	ALLEGRO_BITMAP* graph= NULL;
+	bool graphi = false;
 };
 
 class SPVNodeInfo {
