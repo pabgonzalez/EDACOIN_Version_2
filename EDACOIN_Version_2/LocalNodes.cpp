@@ -4,7 +4,8 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
-
+#define TEXT_OFFSETX 20
+#define TEXT_OFFSETY 12
 #define RAD 200
 #define THICKNESS 10
 #define FONT_SIZE 14
@@ -91,12 +92,11 @@ ALLEGRO_BITMAP* FullNodeInfo::graphNeighbours(void) {
 		double angle = i * 2.0 * 3.14 / fullNode->getNeighbours().size();
 		al_draw_line((PX_PER_UNIT * 5 / 2), (PX_PER_UNIT * 5 / 2),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), al_map_rgb(255, 0, 0), THICKNESS);
 		al_draw_filled_circle((PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), 50, al_map_rgb(100, 255, 100));
-		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle),NULL, "prueba"/*it->first.c_str()*/);
-		cout << PX_PER_UNIT * 5 / 2 + RAD * cos(angle) << "coorx" << endl;
-		cout << PX_PER_UNIT * 5 / 2 - RAD * sin(angle) << "coory" << endl;
+		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle)-TEXT_OFFSETX, (PX_PER_UNIT * 5 / 2) - RAD * sin(angle)-TEXT_OFFSETY,NULL, "prueba"/*it->first.c_str()*/);
+
 	}
 	al_draw_filled_circle(PX_PER_UNIT * 5 / 2, PX_PER_UNIT * 5 / 2, 50, al_map_rgb(100, 255, 100));
-	al_draw_text(font, al_map_rgb(0, 0, 0), (PX_PER_UNIT * 5 / 2) , (PX_PER_UNIT * 5 / 2),NULL,fullNode->getNodeID().c_str());
+	al_draw_text(font, al_map_rgb(0, 0, 0), (PX_PER_UNIT * 5 / 2)-TEXT_OFFSETX , (PX_PER_UNIT * 5 / 2)-TEXT_OFFSETY,NULL,fullNode->getNodeID().c_str());
 	al_set_target_bitmap(backup);
 	return graph;
 }

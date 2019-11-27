@@ -205,7 +205,7 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 		info.newport = newport;
 		info.newid = newid;
 		if (ImGui::Button("Agregar vecino")) {
-			n->appendNeighbourNode(id, { newip, newport });
+			n->appendNeighbourNode(newid, { newip, newport });
 		}
 		ImGui::NewLine();
 	}
