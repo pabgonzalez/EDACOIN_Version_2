@@ -3,6 +3,7 @@
 #include <cryptopp/sha3.h>
 #include <cryptopp/hex.h>
 
+
 using namespace std;
 
 static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp);
@@ -17,6 +18,12 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 	httpMethod = "";
 	performingFetch = 0;
 	curl_global_init(CURL_GLOBAL_ALL);
+
+	AutoSeededRandomPool autoSeededRandomPool;
+	privateKey.Initialize(autoSeededRandomPool, ASN1::secp256k1());
+
+
+
 }
 
 Node::~Node() {
@@ -155,7 +162,7 @@ SocketType Node::getNeighbourSockets(string id) {
 	return ret;
 }
 
-json Node::generateTx(Transaction tx)
+string Node:: generateTxid(Transaction tx)
 {
 	//generate txid
 	string s;
@@ -166,7 +173,7 @@ json Node::generateTx(Transaction tx)
 	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->nutxo; }
 	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->signature; }
 	vector<voutType>::iterator it2;
-	for (it2 = tx.vout.begin(); it2 != tx.vout.end(); it2++) { s += it2->publicid;}
+	for (it2 = tx.vout.begin(); it2 != tx.vout.end(); it2++) { s += it2->publicid; }
 	for (it2 = tx.vout.begin(); it2 != tx.vout.end(); it2++) { s += it2->amount; }
 
 	CryptoPP::SHA256 hash;
@@ -179,15 +186,15 @@ json Node::generateTx(Transaction tx)
 	encoder.Put(digest, sizeof(digest));
 	encoder.MessageEnd();
 
-	std::cout << "txid is: " << txid << std::endl;
-	//***********************************************************************************//
-	
-	json j;
+	return txid;
+}
 
-	//j["txid"] = tx.txid;
-	j["txid"] = (string)txid;
+json Node::generateTx(Transaction tx)
+{
+	json j;
+	j["txid"] = generateTxid(tx);
 	j["nTxin"] = tx.nTxin;
-	
+	j["publicid"] = tx.publicid;
 	for (int i = 0; i < tx.nTxin; i++)
 	{
 		j["vin"] += { {"blockid", tx.vin[i].blockid}, { "txid", tx.vin[i].txid } };

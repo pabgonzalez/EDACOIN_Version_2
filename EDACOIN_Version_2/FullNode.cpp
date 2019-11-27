@@ -4,6 +4,7 @@
 #include <thread>
 
 using namespace std;
+using namespace CryptoPP;
 
 FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 {
@@ -18,6 +19,9 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 	servers.push_back(newserver);
 
 	blockChain.attach(blockViewer);
+
+	AutoSeededRandomPool autoSeededRandomPool;
+	privateKey.Initialize(autoSeededRandomPool, ASN1::secp256k1());
 }
 
 FullNode::~FullNode() {
@@ -449,4 +453,148 @@ string FullNode::handlePOSTcommand(json j, string uri, string ip, int port) {
 	}
 
 	return "{\"result\":true,\"errorCode\":null}";
+}
+
+
+//fase 4
+
+bool FullNode:: validateTx(Transaction tx)
+{
+	bool c1 = false, c2 = false, c3 = false;
+	//ECDSA<ECP, SHA256>::PublicKey publicKey;
+	//privateKey.MakePublicKey(publicKey);
+	
+	if (tx.txid != generateTxid(tx))
+	{
+		c1 = true;
+	}
+
+	vector<Transaction>::iterator it; 
+	for (it = utxo.begin(); it != utxo.end(); it++)
+	{
+		if (it->txid == tx.txid)
+		{
+			c2 == true;
+		}
+	}
+
+
+	//checkeo que las salidas coinciden con las entradas
+	unsigned int amount1 = 0, amount2 = 0;
+	for (int i = 0; i < tx.vout.size(); i++)
+	{
+		amount1 += tx.vout[i].amount;
+	}
+	//recorro todas las entradas
+	for (int i = 0; i < tx.vin.size(); i++)
+	{
+		//busco el bloque y guardo en index en bidx
+		int bidx;
+		for ( bidx = 0; bidx < blockChain.getBlockchainSize(); bidx++)
+		{
+			if (tx.vin[i].blockid == blockChain.getBlockId(bidx))
+				break;
+		}
+		//recorro todas las transacciones de ese bloque
+		for (int txidx = 0; txidx < blockChain.getBlockTransactionNumber(bidx); txidx++)
+		{
+			Transaction txI = blockChain.getTxInBlock(bidx, txidx);
+			//recorro todo el bloque vout de esta transaccion
+			for (int o = 0; o < txI.nTxout; o++)
+			{
+				if (txI.vout[o].publicid == tx.publicid)
+					amount2 += txI.vout[o].amount;
+			}
+		}
+	}
+	if (amount1 == amount2)
+	{
+		c3 = true;
+	}
+
+	return c1 && c2 && c3;
+}
+
+bool FullNode:: validateBlock(Block block, int challenge)
+{
+	bool val = true;
+	string b = hex_str_to_bin_str(block.blockid);
+	for(int i = 0; i < challenge; i++)
+	{
+		if (b[i] != '0')
+			val = false;
+	}
+	int i;
+	for ( i = 0; i < blockChain.getBlockchainSize(); i++)
+	{
+		if (blockChain.getBlockId(i) == block.blockid)
+			break;
+	}
+	if (i != 0 && (blockChain.getBlockId(i - 1) == block.previousblockid) )
+	{
+		val == false;
+	}
+	for (int j = 0; j < blockChain.getBlockTransactionNumber(i); j++)
+	{
+		if (!validateTx(blockChain.getTxInBlock(i, j)))
+		{
+			val = false;
+		}
+	}
+	return val;
+}
+
+string FullNode:: generateBlockID(Block block)
+{
+	//generate blockid
+	string s;
+	s += block.previousblockid;
+	s += block.height;
+	s += block.merkleroot;
+	s += block.nonce;
+
+	CryptoPP::SHA256 hash;
+	byte digest[CryptoPP::SHA256::DIGESTSIZE];
+	hash.CalculateDigest(digest, (byte*)s.c_str(), s.length());
+
+	CryptoPP::HexEncoder encoder;
+	std::string blockid;
+	encoder.Attach(new CryptoPP::StringSink(blockid));
+	encoder.Put(digest, sizeof(digest));
+	encoder.MessageEnd();
+
+	return blockid;
+}
+
+const char* FullNode:: hex_char_to_bin(char c)
+{
+	// TODO handle default / error
+	switch (toupper(c))
+	{
+	case '0': return "0000";
+	case '1': return "0001";
+	case '2': return "0010";
+	case '3': return "0011";
+	case '4': return "0100";
+	case '5': return "0101";
+	case '6': return "0110";
+	case '7': return "0111";
+	case '8': return "1000";
+	case '9': return "1001";
+	case 'A': return "1010";
+	case 'B': return "1011";
+	case 'C': return "1100";
+	case 'D': return "1101";
+	case 'E': return "1110";
+	case 'F': return "1111";
+	}
+}
+
+string FullNode:: hex_str_to_bin_str(const std::string& hex)
+{
+	// TODO use a loop from <algorithm> or smth
+	string bin;
+	for (unsigned i = 0; i != hex.length(); ++i)
+		bin += hex_char_to_bin(hex[i]);
+	return bin;
 }
