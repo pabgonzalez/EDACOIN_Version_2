@@ -461,10 +461,10 @@ string FullNode::handlePOSTcommand(json j, string uri, string ip, int port) {
 bool FullNode:: validateTx(Transaction tx)
 {
 	bool c1 = false, c2 = false, c3 = false;
-	ECDSA<ECP, SHA256>::PublicKey publicKey;
-	privateKey.MakePublicKey(publicKey);
+	//ECDSA<ECP, SHA256>::PublicKey publicKey;
+	//privateKey.MakePublicKey(publicKey);
 	
-	if (tx.txid == generateTxid(tx))
+	if (tx.txid != generateTxid(tx))
 	{
 		c1 = true;
 	}
@@ -477,13 +477,42 @@ bool FullNode:: validateTx(Transaction tx)
 			c2 == true;
 		}
 	}
-	for (it = pendingTx.begin(); it != pendingTx.end(); it++)
+
+
+	//checkeo que las salidas coinciden con las entradas
+	unsigned int amount1 = 0, amount2 = 0;
+	for (int i = 0; i < tx.vout.size(); i++)
 	{
-		if (it->txid == tx.txid)
+		amount1 += tx.vout[i].amount;
+	}
+	//recorro todas las entradas
+	for (int i = 0; i < tx.vin.size(); i++)
+	{
+		//busco el bloque y guardo en index en bidx
+		int bidx;
+		for ( bidx = 0; bidx < blockChain.getBlockchainSize(); bidx++)
 		{
-			 c3 == true;
+			if (tx.vin[i].blockid == blockChain.getBlockId(bidx))
+				break;
+		}
+		//recorro todas las transacciones de ese bloque
+		for (int txidx = 0; txidx < blockChain.getBlockTransactionNumber(bidx); txidx++)
+		{
+			Transaction txI = blockChain.getTxInBlock(bidx, txidx);
+			//recorro todo el bloque vout de esta transaccion
+			for (int o = 0; o < txI.nTxout; o++)
+			{
+				if (txI.vout[o].publicid == tx.publicid)
+					amount2 += txI.vout[o].amount;
+			}
 		}
 	}
+	if (amount1 == amount2)
+	{
+		c3 = true;
+	}
+
+	return c1 && c2 && c3;
 }
 
 bool FullNode:: validateBlock(Block block, int challenge)
