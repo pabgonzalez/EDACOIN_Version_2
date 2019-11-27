@@ -498,14 +498,14 @@ bool FullNode:: validateBlock(Block block, int challenge)
 	int i;
 	for ( i = 0; i < blockChain.getBlockchainSize(); i++)
 	{
-		if (blockChain.getBlockId[i] == block.blockid)
+		if (blockChain.getBlockId(i) == block.blockid)
 			break;
 	}
-	if (i != 0 && (blockChain.getBlockId[i - 1] == block.previousblockid) )
+	if (i != 0 && (blockChain.getBlockId(i - 1) == block.previousblockid) )
 	{
 		val == false;
 	}
-	for (int j = 0; j < blockChain.getBlockTransactionNumber[i]; j++)
+	for (int j = 0; j < blockChain.getBlockTransactionNumber(i); j++)
 	{
 		if (!validateTx(blockChain.getTxInBlock(i, j)))
 		{

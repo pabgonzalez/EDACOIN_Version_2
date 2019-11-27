@@ -68,7 +68,7 @@ public:
 	json generateTx(Transaction tx);
 
 	//crypto
-	string generateTxid(Transaction tx)
+	string generateTxid(Transaction tx);
 
 	//otros
 	bool isNeighbour(string nodeid);
