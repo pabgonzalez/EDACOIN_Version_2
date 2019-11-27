@@ -5,7 +5,7 @@
 #include "BlockViewerController.h"
 #include "JsonController.h"
 #include "NodeController.h"
-#include "ImGuiViewer.h"
+#include "BlockViewer.h"
 #include "ImGuiObserverManager.h"
 #include "FullNode.h"
 #include "SPVNode.h"
@@ -22,24 +22,23 @@ int main() {
 	ImGuiObserverManager obsManager;
 	if (obsManager.getError() == false)
 	{
-		BlockchainModel model;
-		BlockViewerController blockViewerControl(model);
-		JsonController jsonControl(model);
-		ImGuiViewer view;
-		model.attach(view);
-		model.attach(blockViewerControl);
-		model.attach(jsonControl);
+		//BlockchainModel model;
+		//BlockViewerController blockViewerControl(model);
+		//JsonController jsonControl(model);
+		//BlockViewer view;
+		//model.attach(view);
+		//model.attach(blockViewerControl);
+		//model.attach(jsonControl);
+		//obsManager.addObserver(&blockViewerControl);
+		//obsManager.addObserver(&view);
 
 		LocalNodes localNodes;
 		NodeController nodeControl(localNodes);
-		
-		obsManager.addObserver(&blockViewerControl);
-		obsManager.addObserver(&view);
 		obsManager.addObserver(&nodeControl);
 
 		while (obsManager.getExit() == false) {
 			obsManager.cycle();
-			jsonControl.cycle();
+			//jsonControl.cycle();
 		}
 	}
 	else

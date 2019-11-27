@@ -3,7 +3,7 @@
 #include "Observer.h"
 #include "BlockchainModel.h"
 
-class ImGuiViewer : public Observer {
+class BlockViewer : public Observer {
 public:
 	void update(void* model);
 	void cycle(void) {};

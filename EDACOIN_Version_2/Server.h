@@ -24,11 +24,15 @@ public:
 	int getCommandAmount() { return commands.size(); }
 	vector<string> getCommands() { return commands; }
 	string getCommand(int i) { return commands[i]; }
+	string getClientIP();
+	int getClientPort();
 
 private:
 	void parseHttpRequest(string request);
 	void findURIandMethod(string command, string& uri, string& method);
 
+	string clientIP;
+	int clientPort;
 	string uri;
 	string method;
 	vector<string> commands;

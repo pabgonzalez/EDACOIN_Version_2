@@ -17,6 +17,8 @@ Server::Server(unsigned int port) {
 	response = "";
 	uri = "";
 	method = "";
+	clientIP = "";
+	clientPort = 0;
 	commands.clear();
 }
 
@@ -28,7 +30,6 @@ Server::~Server() {
 	delete serverSocket;
 	delete IO_Handler;
 }
-
 
 bool Server::acceptConnection() {
 	boost::system::error_code error;
@@ -54,12 +55,15 @@ bool Server::readRequest() {
 		len = serverSocket->read_some(boost::asio::buffer(buf), error);
 		receivedMessage += buf;
 		if (error.value() != WSAEWOULDBLOCK) {
-			cout << "Se recibio el siguiente mensaje:" << endl << receivedMessage << endl;
-
 			readingRequest = false;
 			requestReady = true;
 
+			clientIP = serverSocket->remote_endpoint().address().to_string();
+			clientPort = serverSocket->remote_endpoint().port();
 			parseHttpRequest(receivedMessage);
+
+			cout << "Se recibio el siguiente mensaje:" << endl << receivedMessage << endl;
+			cout << "Fue emitido desde el IP: " << clientIP << " Puerto: " << clientPort << endl;
 
 			return true;
 		}
@@ -88,6 +92,24 @@ string Server::getRequest() {
 	}
 	else {
 		return "";
+	}
+}
+
+string Server::getClientIP() {
+	if (requestReady) {
+		return clientIP;
+	}
+	else {
+		return "";
+	}
+}
+
+int Server::getClientPort() {
+	if (requestReady) {
+		return clientPort;
+	}
+	else {
+		return 0;
 	}
 }
 

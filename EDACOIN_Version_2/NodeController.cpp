@@ -8,13 +8,11 @@
 #include <allegro5/allegro_ttf.h>
 #include <fstream>
 
-NodeController::NodeController(LocalNodes& mod) : m(mod) {
-	
-}
+NodeController::NodeController(LocalNodes& mod) : m(mod) {}
 
 void NodeController::cycle(void) {
 	static string newip = "";
-	static string newport = "";
+	static int newport = 0;
 	static string newid = "";
 
 
@@ -22,13 +20,12 @@ void NodeController::cycle(void) {
 	ImGui::Begin("Node Controller");
 
 	char ip[50];
-	char port[50];
+	int port = newport;
 	char id[50];
 	sprintf(ip, newip.c_str());
-	sprintf(port, newport.c_str());
 	sprintf(id, newid.c_str());
 	ImGui::InputText("Ingresar IP", ip, sizeof(ip));
-	ImGui::InputText("Ingresar Puerto", port, sizeof(port));
+	ImGui::InputInt("Ingresar Puerto", &port, 0.1f, 0.5f);
 	ImGui::InputText("Ingresar ID", id, sizeof(id));
 	newip = ip;
 	newport = port;
@@ -37,22 +34,13 @@ void NodeController::cycle(void) {
 	if (ImGui::Button("Crear un Full Service Node")) {
 		map<string, SocketType> neighbours;
 		//Leer un archivo con la informacion de los vecinos
-
-		/*for (unsigned int i = 0; i < m.getFullNodesSize(); i++) {
-			FullNode* n = m.getFullNode(i).fullNode;
-			neighbours[n->getNodeID()] = { n->getNodeIP(), n->getNodePort() };
-		}*/
-		m.addFullNode({ ip, stoi(port) }, id, neighbours);
+		m.addFullNode({ ip, port }, id, neighbours);
 	}
+	ImGui::SameLine();
 	if (ImGui::Button("Crear un SPV Node")) {
 		map<string, SocketType> neighbours;
 		//Leer un archivo con la informacion de los vecinos
-
-		/*for (unsigned int i = 0; i<2 && i < m.getFullNodesSize(); i++) {
-			FullNode* n = m.getFullNode(i).fullNode;
-			neighbours[n->getNodeID()] = { n->getNodeIP(), n->getNodePort() };
-		}*/
-		m.addSPVNode({ ip, stoi(port) }, id, neighbours);
+		m.addSPVNode({ ip, port }, id, neighbours);
 	}
 
 	ImGui::NewLine();
@@ -60,7 +48,7 @@ void NodeController::cycle(void) {
 
 	ImGui::Columns(2);
 
-	ImGui::BeginChild("LocalNodeList", ImVec2(ImGui::GetColumnWidth() - 10, 300));
+	ImGui::BeginChild("LocalNodeList", ImVec2(ImGui::GetColumnWidth() - 10, 400));
 
 	ImGui::Text("Local Full Service Nodes");
 	ImGui::Separator();
@@ -89,7 +77,7 @@ void NodeController::cycle(void) {
 	ImGui::EndChild();	//Lista de Nodos
 
 	ImGui::NextColumn();
-	ImGui::BeginChild("Opened Node", ImVec2(ImGui::GetColumnWidth() - 10, 300));
+	ImGui::BeginChild("Opened Node", ImVec2(ImGui::GetColumnWidth() - 10, 400));
 
 	if (m.isAnyNodeSelected()) {
 		if (m.isSelectedNodeFull()) {
@@ -172,40 +160,67 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	FullNode* n = info.fullNode;
 
 	//Full Node GUI
+	ImGui::Text("Informacion del Nodo");
+	ImGui::Separator();
 	ImGui::Text(("ID: " + n->getNodeID()).c_str());
 	ImGui::Text(("IP: " + n->getNodeIP()).c_str());
 	ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
+	ImGui::NewLine();
 	ImGui::Separator();
 	ImGui::Text("Conectarse con otro nodo");
+	ImGui::Separator();
 	char id[50];
 	sprintf(id, info.neighbourID.c_str());
-	ImGui::InputText("Ingresar ID", id, sizeof(id));
+	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
 	info.neighbourID = id;
-	ImGui::Separator();
+	ImGui::NewLine();
 
-	int amount = info.amount;
-	ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
-	info.amount = amount;
-	ImGui::SameLine();
-	if (ImGui::Button("Transferir")) {
-		vector<vinType> vin;
-		vin.push_back({ "blockid-dummy", "txid-dummy" });
-		vector<voutType> vout;
-		vout.push_back({ id, amount });
-		Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
-		n->sendTx(id, tx);
+	if (ImGui::CollapsingHeader("Realizar Transferencia")) {
+		int amount = info.amount;
+		ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
+		info.amount = amount;
+		char receiver[50];
+		sprintf(receiver, info.receiver.c_str());
+		ImGui::InputText("Receptor", receiver, sizeof(receiver));
+		info.receiver = receiver;
+		if (ImGui::Button("Transferir")) {
+			vector<vinType> vin;
+			vin.push_back({ "blockid-dummy", "txid-dummy" });
+			vector<voutType> vout;
+			vout.push_back({ info.receiver, amount });
+			Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
+			n->sendTx(id, tx);
+		}
+		ImGui::NewLine();
 	}
-	ImGui::Separator();
-	if (ImGui::Button("Ver Bloques")) {
-		ImGui::Begin("Bloques");
+	
+	if (ImGui::CollapsingHeader("Agregar Vecino")) {
+		char newip[50];
+		int newport = info.newport;
+		char newid[50];
+		sprintf(newip, info.newip.c_str());
+		sprintf(newid, info.newid.c_str());
+		ImGui::InputText("IP del nuevo Vecino", newip, sizeof(newip));
+		ImGui::InputInt("Puerto del nuevo Vecino", &newport, 0.1f, 0.5f);
+		ImGui::InputText("ID del nuevo Vecino", newid, sizeof(newid));
+		info.newip = newip;
+		info.newport = newport;
+		info.newid = newid;
+		if (ImGui::Button("Agregar vecino")) {
+			n->appendNeighbourNode(id, { newip, newport });
+		}
+		ImGui::NewLine();
+	}
+
+	if (ImGui::CollapsingHeader("Ver Bloques")) {
+
 		for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
 			bool selectedBlock = n->getBlockchain().getBlockSelected(i);
-			ImGui::Checkbox(("##Bloque " + to_string(i)).c_str(), &selectedBlock);
+			ImGui::Checkbox(("##Bloque " + to_string(i) + n->getNodeID()).c_str(), &selectedBlock);
 			n->getBlockchain().setBlockSelected(i, selectedBlock);
 			n->getBlockchain().setBlockShowingInfo(i, true);
 			n->getBlockchain().setBlockShowingInfo(i, false);
 		}
-
 		if (ImGui::Button("Seleccionar todos")) {
 			for (int i = 0; i < n->getBlockchain().getBlockchainSize(); i++) {
 				n->getBlockchain().setBlockSelected(i, true);
@@ -226,19 +241,7 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 			}
 		}
 
-		ImGui::End();
-	}
-	if (ImGui::Button("Agregar vecino")) {
-		char NeighID[64];
-		char NeighPORT[64];
-		char NeighIP[64];
-		ImGui::Begin("New Neighbour");
-		ImGui::Text("ID del vecino", NeighID);
-		ImGui::Text("IP del vecino", NeighIP);
-		ImGui::Text("PORT del vecino", NeighPORT);
-		if (ImGui::Button("Aceptar")) {
-			/*agregar vecino*/
-		}
+		ImGui::NewLine();
 	}
 }
 

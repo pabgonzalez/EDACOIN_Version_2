@@ -16,6 +16,8 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 
 	Server* newserver = new Server(socket.port);
 	servers.push_back(newserver);
+
+	blockChain.attach(blockViewer);
 }
 
 FullNode::~FullNode() {
@@ -309,23 +311,31 @@ bool FullNode::isConnected(vector<vector<bool>> adjacencyMatrix, unsigned qNodes
 	return true;
 }
 
-//flooding
-void FullNode:: flood(pair<string, SocketType> emisor, Transaction tx)
+//Tx Flood
+void FullNode::floodTransaction(Transaction tx, string ip, int port)
 {
-	//if(!txInBlockChain)
 	map<string, SocketType>::iterator it;
 	for (it = neighbourNodes.begin(); it != neighbourNodes.end(); ++it)
 	{
-		if (it->first != emisor.first)
+		if (it->second.IP != ip || it->second.port != port) //Si no se trata del emisor original
 		{
-			sendTx(emisor.first, tx);
+			sendTx(it->first, tx);
 		}
 	}
-	//saveTx
 }
 
-
-
+//Block Flood
+void FullNode::floodBlock(Block b, string ip, int port)
+{
+	map<string, SocketType>::iterator it;
+	for (it = neighbourNodes.begin(); it != neighbourNodes.end(); ++it)
+	{
+		if (it->second.IP != ip || it->second.port != port) //Si no se trata del emisor original
+		{
+			sendBlock(it->first, b.blockid);
+		}
+	}
+}
 
 void FullNode::cycleConnections() {
 	vector<int> pendingErasing;
@@ -338,7 +348,9 @@ void FullNode::cycleConnections() {
 		if (servers[i]->readRequest()) {
 			string uri = servers[i]->getURI();
 			string method = servers[i]->getMethod();
-			string response = respondToCommands(servers[i]->getCommands(), uri, method);
+			string ip = servers[i]->getClientIP();
+			int port = servers[i]->getClientPort();
+			string response = respondToCommands(servers[i]->getCommands(), uri, method, ip, port);
 
 			if (response.size() == 0) {
 				servers[i]->sendResponse("404 Not Found", response);
@@ -359,7 +371,7 @@ void FullNode::cycleConnections() {
 	}
 }
 
-string FullNode::respondToCommands(vector<string> commands, string uri, string method) {
+string FullNode::respondToCommands(vector<string> commands, string uri, string method, string ip, int port) {
 	string response = "";
 
 	for (unsigned int i = 0; i < commands.size(); i++) {
@@ -367,18 +379,18 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 			json j = json::parse(commands[i], nullptr, false);
 
 			if (j.is_discarded() == false) {
-				response += handlePOSTcommand(j, uri);
+				response += handlePOSTcommand(j, uri, ip, port);
 			}
 		}
 		else if (method == "GET") {
-			response += handleGETcommand(commands[i], uri);
+			response += handleGETcommand(commands[i], uri, ip, port);
 		}
 	}
 
 	return response;
 }
 
-string FullNode::handleGETcommand(string command, string uri) {
+string FullNode::handleGETcommand(string command, string uri, string ip, int port) {
 	if (uri == "/eda_coin/get_block_header/") {
 		size_t foundId = command.find("block_id:");
 		if (foundId != string::npos) {
@@ -398,12 +410,35 @@ string FullNode::handleGETcommand(string command, string uri) {
 	}
 }
 
-string FullNode::handlePOSTcommand(json j, string uri) {
+string FullNode::handlePOSTcommand(json j, string uri, string ip, int port) {
 	if (uri == "/eda_coin/send_block/") {
-		blockChain.appendBlock(createBlock(j));
+		bool blockIsNew = true;
+		Block b = createBlock(j);
+		//Empiezo por el final, probablemente el bloque fue recientemente agregado
+		for (int i = blockChain.getBlockchainSize() - 1; i >= 0; i--) {
+			if (b.blockid == blockChain.getBlockId(i)) {
+				blockIsNew = false;
+				break;
+			}
+		}
+		if (blockIsNew) {
+			blockChain.appendBlock(b);
+			floodBlock(b, ip, port);
+		}
 	}
 	else if (uri == "/eda_coin/send_tx") {
-		pendingTx.push_back(createTx(j));
+		bool txIsNew = true;
+		Transaction tx = createTx(j);
+		for (unsigned int i = 0; i < pendingTx.size(); i++) {
+			if (tx.txid == pendingTx[i].txid) {
+				txIsNew = false;
+				break;
+			}
+		}
+		if (txIsNew) {
+			pendingTx.push_back(tx);
+			floodTransaction(tx, ip, port);
+		}
 	}
 	else if (uri == "/eda_coin/send_filter") {
 		string id = j["Id"];
