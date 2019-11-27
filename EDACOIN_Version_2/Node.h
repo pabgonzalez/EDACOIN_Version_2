@@ -36,6 +36,7 @@ public:
 	string getResponse() { return httpResponse; }
 	string getHttpMethod() { return httpMethod; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
+	map<string, SocketType> getNeighbours() { return neighbourNodes; }
 	
 	//Senders (POST)
 	void sendTx(string nodeid, Transaction tx);
@@ -46,7 +47,7 @@ public:
 
 	//setters
 	void setNodeSocket(SocketType socket);
-	
+
 	//appenders
 	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
 	void appendNeighbourNode(Node neighbourNode);
@@ -56,6 +57,7 @@ public:
 
 	//otros
 	bool isNeighbour(string nodeid);
+	void removeNeighbourNode(string nodeid) { neighbourNodes.erase(nodeid); }
 
 	//curl functions
 	bool performFetch();

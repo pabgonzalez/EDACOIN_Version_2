@@ -10,8 +10,12 @@ public:
 		neighbourID = "";
 	}
 	FullNode* fullNode;
-	string neighbourID; //Vecino al cual me voy a conectar
-	int amount = 0;	//Unidades para transferir
+	string neighbourID;		//Vecino(Full) al cual me voy a conectar
+	int amount = 0;			//Unidades que se van a transferir
+	string receiver = "";	//ID del nodo que recibe el pago
+	string newip = "";		//IP del nuevo vecino
+	int newport = 0;		//Port del nuevo vecino
+	string newid = "";		//Id del nuevo vecino
 };
 
 class SPVNodeInfo {
@@ -21,8 +25,13 @@ public:
 		string neighbourID = "";
 	}
 	SPVNode* spvNode;
-	string neighbourID; //Vecino al cual me voy a conectar
-	int amount = 0;
+	string neighbourID;		//Vecino(Full) al cual me voy a conectar
+	int amount = 0;			//Unidades que se van a transferir
+	string receiver = "";	//ID del nodo que recibe el pago
+	string newip = "";		//IP del nuevo vecino
+	int newport = 0;		//Port del nuevo vecino
+	string newid = "";		//Id del nuevo vecino
+	string oldNeighbourID = "";	//ID del vecino que se reemplaza por otro
 };
 
 class LocalNodes : public Subject {

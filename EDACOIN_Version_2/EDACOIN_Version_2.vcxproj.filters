@@ -48,9 +48,6 @@
     <ClInclude Include="ImGuiObserverManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiViewer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,6 +114,9 @@
     <ClInclude Include="Controller.h">
       <Filter>Header Files\MVC</Filter>
     </ClInclude>
+    <ClInclude Include="BlockViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BlockViewerController.cpp">
@@ -126,9 +126,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiObserverManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="JsonController.cpp">
@@ -178,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockViewer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

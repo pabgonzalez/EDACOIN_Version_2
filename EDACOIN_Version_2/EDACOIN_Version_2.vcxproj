@@ -160,7 +160,7 @@
     <ClInclude Include="imgui.h" />
     <ClInclude Include="ImGuiController.h" />
     <ClInclude Include="ImGuiObserverManager.h" />
-    <ClInclude Include="ImGuiViewer.h" />
+    <ClInclude Include="BlockViewer.h" />
     <ClInclude Include="imgui_impl_allegro5.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="imstb_rectpack.h" />
@@ -185,7 +185,7 @@
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="ImGuiController.cpp" />
     <ClCompile Include="ImGuiObserverManager.cpp" />
-    <ClCompile Include="ImGuiViewer.cpp" />
+    <ClCompile Include="BlockViewer.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_allegro5.cpp" />

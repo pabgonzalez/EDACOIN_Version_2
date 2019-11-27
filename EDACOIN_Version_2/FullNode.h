@@ -1,6 +1,7 @@
 #pragma once
 #include "Node.h"
 #include "Server.h"
+#include "BlockViewer.h"
 #include <set>
 
 using namespace std;
@@ -46,16 +47,19 @@ private:
 	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
 
 	//flooding
-	void flood(pair<string, SocketType> emisor, Transaction tx);
+	void floodTransaction(Transaction tx, string ip, int port);
+	void floodBlock(Block b, string ip, int port);
 
 	//Server
-	string respondToCommands(vector<string> commands, string uri, string method);
-	string handleGETcommand(string command, string uri);
-	string handlePOSTcommand(json j, string uri);
+	string respondToCommands(vector<string> commands, string uri, string method, string ip, int port);
+	string handleGETcommand(string command, string uri, string ip, int port);
+	string handlePOSTcommand(json j, string uri, string ip, int port);
 	
 	bool pingStatus;
 	unsigned timer;
+	
 	BlockchainModel blockChain;
+	BlockViewer blockViewer;
 	p2pstate state;
 	vector<Server*> servers;
 	set<string> subscriptors;

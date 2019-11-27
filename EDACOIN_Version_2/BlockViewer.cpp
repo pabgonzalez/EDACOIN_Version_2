@@ -1,4 +1,4 @@
-#include "ImGuiViewer.h"
+#include "BlockViewer.h"
 #include "BlockchainModel.h"
 #include "imgui.h"
 #include "imgui_impl_allegro5.h"
@@ -18,7 +18,7 @@
 #define TEXT_OFFSETX 45
 #define TEXT_OFFSETY 12
 
-void ImGuiViewer::update(void* model) {
+void BlockViewer::update(void* model) {
 	BlockchainModel* m = (BlockchainModel*)model;
 
 	if (m->getBlockchainSize() == 0 && treeBitmaps.size() > 0)
@@ -70,7 +70,7 @@ void ImGuiViewer::update(void* model) {
 	}
 }
 
-ALLEGRO_BITMAP* ImGuiViewer:: drawTree(vector<MerkleNode> merkTree) {
+ALLEGRO_BITMAP* BlockViewer:: drawTree(vector<MerkleNode> merkTree) {
 	ALLEGRO_BITMAP* backup = al_get_target_bitmap();
 	ALLEGRO_BITMAP* tree = NULL;
 	ALLEGRO_FONT* font = NULL;
