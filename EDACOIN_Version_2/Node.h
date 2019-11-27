@@ -11,8 +11,17 @@
 #define CURL_STATICLIB
 #include <curl\curl.h>
 
+#include <cryptopp/sha.h>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/oids.h>
+
 using namespace std;
 using json = nlohmann::json;
+using namespace CryptoPP;
 
 typedef struct {
 	string IP;
@@ -55,6 +64,9 @@ public:
 	//writers
 	json generateTx(Transaction tx);
 
+	//crypto
+	string generateTxid(Transaction tx)
+
 	//otros
 	bool isNeighbour(string nodeid);
 	void removeNeighbourNode(string nodeid) { neighbourNodes.erase(nodeid); }
@@ -73,4 +85,6 @@ protected:
 	string httpResponse;
 	int performingFetch;
 	string httpMethod;	//Vale POST O GET
+
+	ECDSA<ECP, SHA256>::PrivateKey privateKey;
 };
