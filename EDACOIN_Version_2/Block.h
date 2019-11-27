@@ -20,6 +20,7 @@ class Transaction {
 public:
 	void appendVin(vinType v);
 	void appendVout(voutType v);
+	string publicid;	//lo agrego para poder validar las transacciones
 	string txid;
 	int nTxin;
 	vector<vinType> vin;

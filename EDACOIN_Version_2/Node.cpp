@@ -194,7 +194,7 @@ json Node::generateTx(Transaction tx)
 	json j;
 	j["txid"] = generateTxid(tx);
 	j["nTxin"] = tx.nTxin;
-	
+	j["publicid"] = tx.publicid;
 	for (int i = 0; i < tx.nTxin; i++)
 	{
 		j["vin"] += { {"blockid", tx.vin[i].blockid}, { "txid", tx.vin[i].txid } };
