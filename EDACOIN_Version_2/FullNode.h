@@ -25,7 +25,6 @@ public:
 	json generateMerkleBlock(string blockid, string txid);
 	json generateBlockHeader(string blockid);
 
-
 	//FSM
 	void p2pNetFSM(void);
 	json p2pAlgorithm(map<string, SocketType> Nodes);

@@ -1,4 +1,8 @@
 #include "Node.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/hex.h>
+
 
 using namespace std;
 
@@ -141,9 +145,35 @@ SocketType Node::getNeighbourSockets(string id) {
 
 json Node::generateTx(Transaction tx)
 {
+	//generate txid
+	string s;
+	s += tx.nTxin;
+	vector<vinType>::iterator it;
+	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->blockid; }
+	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->txid; }
+	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->nutxo; }
+	for (it = tx.vin.begin(); it != tx.vin.end(); it++) { s += it->signature; }
+	vector<voutType>::iterator it2;
+	for (it2 = tx.vout.begin(); it2 != tx.vout.end(); it2++) { s += it2->publicid;}
+	for (it2 = tx.vout.begin(); it2 != tx.vout.end(); it2++) { s += it2->amount; }
+
+	CryptoPP::SHA256 hash;
+	byte digest[CryptoPP::SHA256::DIGESTSIZE];
+	hash.CalculateDigest(digest, (byte*)s.c_str(), s.length());
+
+	CryptoPP::HexEncoder encoder;
+	std::string txid;
+	encoder.Attach(new CryptoPP::StringSink(txid));
+	encoder.Put(digest, sizeof(digest));
+	encoder.MessageEnd();
+
+	std::cout << "txid is: " << txid << std::endl;
+	//***********************************************************************************//
+	
 	json j;
 
-	j["txid"] = tx.txid;
+	//j["txid"] = tx.txid;
+	j["txid"] = (string)txid;
 	j["nTxin"] = tx.nTxin;
 	
 	for (int i = 0; i < tx.nTxin; i++)
