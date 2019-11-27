@@ -3,7 +3,6 @@
 #include <cryptopp/sha3.h>
 #include <cryptopp/hex.h>
 
-
 using namespace std;
 
 static size_t writeCallback(void* contents, size_t size, size_t nmemb, void* userp);
@@ -35,6 +34,19 @@ string Node::getNodeIP() {
 int Node::getNodePort() {
 	return socket.port;
 }
+
+map<string, SocketType> Node::getNodesFromManifest() {
+	map<string, SocketType> nodes;
+	std::ifstream manifestFile(manifestPath, std::ifstream::in);
+	json j;
+	manifestFile >> j;
+	for (auto it : j)
+	{
+		nodes.insert(pair<string, SocketType>(it["id"], { it["ip"], it["port"] }));
+	}
+	return nodes;
+}
+
 void Node::setNodeSocket(SocketType s){
 	socket = s;
 }

@@ -41,7 +41,7 @@ public:
 
 class LocalNodes : public Subject {
 public:
-	LocalNodes();
+	LocalNodes(string p);
 	~LocalNodes();
 
 	void setSelectedNode(int index, bool isFullNode);
@@ -56,13 +56,18 @@ public:
 	FullNodeInfo& getFullNode(int i) { return fullNodes[i]; }
 	SPVNodeInfo& getSPVNode(int i) { return spvNodes[i]; }
 
-	void addFullNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
-	void addSPVNode(SocketType socket, string ID, map<string, SocketType> neighbourNodes);
+	void addFullNode(SocketType socket, string ID);
+	void addSPVNode(SocketType socket, string ID);
 	void appendNode(FullNode* node);
 	void appendNode(SPVNode* node);
+
+	void setManifestPath(string p) { manifestPath = p; }
+
 protected:
 	vector<FullNodeInfo> fullNodes;
 	vector<SPVNodeInfo> spvNodes;
+
+	string manifestPath;	//Lista de nodos de la red
 
 	int selectedNodeIndex;
 	bool selectedIsFull;
