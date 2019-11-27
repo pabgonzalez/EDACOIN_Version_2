@@ -2,6 +2,8 @@
 #include "Subject.h"
 #include "FullNode.h"
 #include "SPVNode.h"
+#include "allegro5/allegro.h"
+
 
 class FullNodeInfo {	//Nodo + info del nodo para la GUI y demas
 public:
@@ -16,6 +18,8 @@ public:
 	string newip = "";		//IP del nuevo vecino
 	int newport = 0;		//Port del nuevo vecino
 	string newid = "";		//Id del nuevo vecino
+	ALLEGRO_BITMAP* graphNeighbours(void);
+	ALLEGRO_BITMAP* graph;
 };
 
 class SPVNodeInfo {
