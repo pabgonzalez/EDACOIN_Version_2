@@ -96,8 +96,8 @@ Transaction createTx(json j) {
 	return tx;
 }
 
-Filter createFilter(json j) {
-	Filter f = {"", "", 0};
+Filter_ createFilter(json j) {
+	Filter_ f = {"", "", 0};
 	if (!j.empty()) {
 		for (auto& element : j) {
 			f.publicid = element["publicid"];
