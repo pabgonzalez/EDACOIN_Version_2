@@ -246,4 +246,71 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 }
 
 void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
+	SPVNode* n = info.spvNode;
+
+	//SPV Node GUI
+	ImGui::Text("Informacion del Nodo");
+	ImGui::Separator();
+	ImGui::Text(("ID: " + n->getNodeID()).c_str());
+	ImGui::Text(("IP: " + n->getNodeIP()).c_str());
+	ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
+	ImGui::NewLine();
+	ImGui::Separator();
+	ImGui::Text("Conectarse con otro nodo");
+	ImGui::Separator();
+	char id[50];
+	sprintf(id, info.neighbourID.c_str());
+	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
+	info.neighbourID = id;
+	ImGui::NewLine();
+
+	if (ImGui::CollapsingHeader("Realizar Transferencia")) {
+		int amount = info.amount;
+		ImGui::InputInt("Monto", &amount, 0.1f, 0.5f);
+		info.amount = amount;
+		char receiver[50];
+		sprintf(receiver, info.receiver.c_str());
+		ImGui::InputText("Receptor", receiver, sizeof(receiver));
+		info.receiver = receiver;
+		if (ImGui::Button("Transferir")) {
+			vector<vinType> vin;
+			vin.push_back({ "blockid-dummy", "txid-dummy" });
+			vector<voutType> vout;
+			vout.push_back({ info.receiver, amount });
+			Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
+			n->sendTx(id, tx);
+		}
+		ImGui::NewLine();
+	}
+
+	if (ImGui::CollapsingHeader("Modificar Vecino")) {
+		ImGui::Text("Vecino a modificar: ");
+		map<string, SocketType> neighbours = n->getNeighbours();
+		map<string, SocketType>::iterator it;
+		for (it = neighbours.begin(); it != neighbours.end(); ++it)
+		{
+			bool selected = (info.oldNeighbourID == it->first) ? true : false;
+			ImGui::Checkbox((it->first).c_str(), &selected);
+			info.oldNeighbourID = (selected) ? it->first : info.oldNeighbourID;
+		}
+		ImGui::NewLine();
+		char newip[50];
+		int newport = info.newport;
+		char newid[50];
+		sprintf(newip, info.newip.c_str());
+		sprintf(newid, info.newid.c_str());
+		ImGui::InputText("IP del nuevo Vecino", newip, sizeof(newip));
+		ImGui::InputInt("Puerto del nuevo Vecino", &newport, 0.1f, 0.5f);
+		ImGui::InputText("ID del nuevo Vecino", newid, sizeof(newid));
+		info.newip = newip;
+		info.newport = newport;
+		info.newid = newid;
+		if (ImGui::Button("Modificar vecino")) {
+			n->removeNeighbourNode(info.oldNeighbourID);
+			n->appendNeighbourNode(newid, { newip, newport });
+		}
+		ImGui::NewLine();
+	}
+
+	//Algo de verificar el MerkleBlock
 }
