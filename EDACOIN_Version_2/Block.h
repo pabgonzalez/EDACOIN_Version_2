@@ -7,6 +7,8 @@ using namespace std;
 typedef struct {
 	string blockid;
 	string txid;
+	string signature;
+	unsigned int nutxo;	//la posicion 1 se indica con 1 (no con cero)
 }vinType;
 
 typedef struct {
