@@ -106,7 +106,7 @@ void NodeController::cycle(void) {
 	}
 
 	for (int i = 0; i < m.getSPVNodesSize(); i++) {
-		/*SPVNodeInfo& info = m.getSPVNode(i);
+		SPVNodeInfo& info = m.getSPVNode(i);
 		SPVNode* n = info.spvNode;
 
 		//Client
@@ -114,25 +114,11 @@ void NodeController::cycle(void) {
 			n->performFetch();
 		}
 		else {
-			if (n->getHttpMethod() == "POST") {
-				json response(n->getResponse());
-				if (response["result"] == true) {
-					cout << "No error in response" << endl;
-					//Yay for me
-				}
-				else {
-					cout << "Error in response";
-				}
-			}
-			else if (n->getHttpMethod() == "GET") {
-				json response(n->getResponse());
-
-				//Received Block Header, do something
-			}
+			n->handleResponse();
 		}
 
 		//Server
-		n->cycleConnections();*/
+		n->cycleConnections();
 	}
 }
 

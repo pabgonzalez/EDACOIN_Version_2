@@ -15,6 +15,9 @@ public:
 
 	void chooseTwoNeighbours();
 
+	//Client
+	void handleResponse();
+
 	//Server
 	void cycleConnections();
 

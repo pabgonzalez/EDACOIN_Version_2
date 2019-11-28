@@ -14,6 +14,14 @@ SPVNode::~SPVNode() {
 	delete server;
 }
 
+void SPVNode::handleResponse() {
+	if (getNewResponse()) {
+		cout << "Recibi la siguiente respuesta:" << endl;
+		cout << getResponse() << endl;
+		setNewResponse(false);
+	}
+}
+
 void SPVNode::sendFilter(string nodeid) {
 	if (isNeighbour(nodeid)) {
 		json j;
