@@ -31,6 +31,11 @@ public:
 	json generateMerkleBlock(string blockid, string txid);
 	json generateBlockHeader(string blockid);
 
+	//crypto
+	bool validateTx(Transaction tx);
+	bool validateBlock(Block block, int challenge);
+	string generateBlockID(Block block);
+
 	//FSM
 	void p2pFSM();
 	json p2pAlgorithm(map<string, SocketType> Nodes);
@@ -58,6 +63,10 @@ private:
 	void floodTransaction(Transaction tx, string ip, int port);
 	void floodBlock(Block b, string ip, int port);
 
+	//crypto
+	const char* hex_char_to_bin(char c);
+	string hex_str_to_bin_str(const std::string& hex);
+
 	//Server
 	string respondToCommands(vector<string> commands, string uri, string method, string ip, int port);
 	string handleGETcommand(string command, string uri, string ip, int port);
@@ -75,4 +84,5 @@ private:
 
 	map<string, SocketType>::iterator pingNodeIt;	//Iterador al nodo que estoy pingeando
 	map<string, SocketType> onlineNodes;	//Lista de nodos que respondieron al ping
+	vector<Transaction> utxo;
 };

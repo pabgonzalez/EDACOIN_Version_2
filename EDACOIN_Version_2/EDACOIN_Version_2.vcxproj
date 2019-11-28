@@ -169,6 +169,7 @@
     <ClInclude Include="json.hpp" />
     <ClInclude Include="JsonController.h" />
     <ClInclude Include="LocalNodes.h" />
+    <ClInclude Include="MinerNode.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="NodeController.h" />
     <ClInclude Include="Observer.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="JsonController.cpp" />
     <ClCompile Include="LocalNodes.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MinerNode.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NodeController.cpp" />
     <ClCompile Include="Server.cpp" />

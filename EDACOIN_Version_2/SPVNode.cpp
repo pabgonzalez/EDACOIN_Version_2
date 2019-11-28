@@ -5,6 +5,9 @@ SPVNode::SPVNode(SocketType socket, string ID, map<string, SocketType> neighbour
 	Node(socket, ID, neighbourNodes) {
 
 	server = new Server(socket.port);
+
+	AutoSeededRandomPool autoSeededRandomPool;
+	privateKey.Initialize(autoSeededRandomPool, ASN1::secp256k1());
 }
 
 SPVNode::~SPVNode() {

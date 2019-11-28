@@ -117,6 +117,9 @@
     <ClInclude Include="BlockViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MinerNode.h">
+      <Filter>Header Files\Blockchain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BlockViewerController.cpp">
@@ -178,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="BlockViewer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MinerNode.cpp">
+      <Filter>Source Files\Blockchain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

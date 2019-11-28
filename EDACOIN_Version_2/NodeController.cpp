@@ -138,7 +138,8 @@ void NodeController::cycle(void) {
 
 void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	FullNode* n = info.fullNode;
-
+	
+	
 	//Full Node GUI
 	ImGui::Text("Informacion del Nodo");
 	ImGui::Separator();
@@ -153,6 +154,12 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	sprintf(id, info.neighbourID.c_str());
 	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
 	info.neighbourID = id;
+	if (ImGui::Button("Grafo")) {
+		if (info.graph == NULL) {
+			info.graph = info.graphNeighbours();
+			if (info.graph  != NULL) { info.graphi = true; }
+		}
+	}
 	ImGui::NewLine();
 
 	if (ImGui::CollapsingHeader("Realizar Transferencia")) {
@@ -187,7 +194,7 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 		info.newport = newport;
 		info.newid = newid;
 		if (ImGui::Button("Agregar vecino")) {
-			n->appendNeighbourNode(id, { newip, newport });
+			n->appendNeighbourNode(newid, { newip, newport });
 		}
 		ImGui::NewLine();
 	}
@@ -234,8 +241,12 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 
 		ImGui::NewLine();
 	}
+	if (info.graphi) {
+		ImGui::Begin("Graph");
+		ImGui::Image(info.graph, ImVec2(al_get_bitmap_width(info.graph), al_get_bitmap_height(info.graph)));
+		ImGui::End();
+	}
 }
-
 void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 	SPVNode* n = info.spvNode;
 

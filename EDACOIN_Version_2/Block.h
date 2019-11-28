@@ -25,9 +25,10 @@ public:
 	vector<vinType> vin;
 	int nTxout;
 	vector<voutType> vout;
+	string publicid;	//lo agrego para poder validar las transacciones
 };
 
-class Filter {
+class Filter_ {
 public:
 	string publicid;
 	string ip;
