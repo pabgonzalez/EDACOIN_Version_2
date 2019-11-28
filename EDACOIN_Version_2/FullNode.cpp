@@ -128,8 +128,6 @@ int FullNode::sendNextLayout() {
 				if (nextNodeIt == onlineNodes.end()) nextNodeIt = onlineNodes.begin();
 
 				cout << prevNodeIt->first << " is the leader, he needs no LAYOUT" << endl;
-				string id = prevNodeIt->first;
-				SocketType sock = prevNodeIt->second;
 				onlineNodes.erase(prevNodeIt);
 
 				addNeighboursFromLayout(networkLayout);
@@ -141,7 +139,7 @@ int FullNode::sendNextLayout() {
 }
 
 void FullNode::sendLayout(SocketType s) {
-	httpPost(s.IP, s.port, "/path/NETWORK_LAYOUT", "Host:localhost", 5);	//Timeout 5ms
+	httpPost(s.IP, s.port, "/path/NETWORK_LAYOUT", networkLayout);
 }
 
 void FullNode::sendMerkleBlock(string nodeid, string blockid, string txid) {
@@ -479,6 +477,13 @@ void FullNode::handleResponse() {
 					}
 				}
 			}
+			else if (getHttpURI() == "/path/NETWORK_LAYOUT") {
+				string r = getResponse();
+				json response = json::parse(r, nullptr, false);
+				if (response.is_discarded() == false) {			//No me importa mucho la respuesta
+					onlineNodes.erase(prevNodeIt);
+				}
+			}
 		}
 		else if (getHttpMethod() == "GET") {
 			//json response(n->getResponse());
@@ -507,7 +512,7 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 					if (j.is_discarded() == false) {
 						cout << ID<<": Received Layout!" << endl;
 						addNeighboursFromLayout(j.dump());
-						response = "{\"status\":true}";	//Esto representa Network Ready
+						response = "{\"status\":false}";	//Esto representa Network Ready
 					}
 				}
 			}
