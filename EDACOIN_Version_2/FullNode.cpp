@@ -264,7 +264,7 @@ json FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 	vector<string> IDs;
 	for (auto const& element : Nodes)
 		IDs.push_back(element.first);
-	IDs.push_back(this->ID);
+	//IDs.push_back(this->ID);
 	
 	vector<vector<bool>> adjacencyMatrix(IDs.size(), vector<bool>(IDs.size(), 0));
 	while (isConnected(adjacencyMatrix, IDs.size()) == false || checkStrongConnections(adjacencyMatrix, IDs.size()) != -1)
@@ -490,13 +490,13 @@ void FullNode::handleResponse() {
 					else {	//Network_ready
 						appendNeighbourNode(prevNodeIt->first, prevNodeIt->second);
 						//Do something with existing layout: response["layout"];
-						json response = json::parse(response["blockchain"], nullptr, false);
-						if (response.is_discarded() == false) {
-							if (!j.empty() && j.is_array())
+						json b = response["blockchain"];
+						if (b.is_discarded() == false) {
+							if (!b.empty() && b.is_array())
 							{
 								blockChain.clearBlockChain();
 								vector<string> vTx;
-								for (auto& element : j)
+								for (auto& element : b)
 								{
 									blockChain.appendBlock(createBlock(element));
 								}
@@ -806,34 +806,31 @@ string FullNode:: hex_str_to_bin_str(const std::string& hex)
 
 void FullNode::addNeighboursFromLayout(string layout)
 {
+	json j = json::parse(layout);
 	int begin = layout.rfind(ID);
 	if (begin == string::npos)
 	{
 		cout << "Error:" << ID << "not found in layout" << endl;
 		return;
 	}
-	int target1 = 0, target2 = 0;
-	char node1[64];
-	char node2[64];
+
 	map<string, SocketType>::iterator el;
 	map<string, SocketType> manifest = getNodesFromManifest();
+	for (auto& edge : j["edges"]) {
+		string node1 = edge["target1"];
+		string node2 = edge["target2"];
 
-	while (target1 != string::npos && target2 != string::npos)
-	{
-		
-		target1 = layout.find("target1", target1);
-		target2 = layout.find("target2", target2);
-		layout.copy(node1, 64, target1 + 2);
-		layout.copy(node2, 64, target2 + 2);
 		if (node1 != ID && node2 == ID)
 		{
 			el = manifest.find(node1);
-			appendNeighbourNode(node1, el->second); 
+			appendNeighbourNode(node1, el->second);
+			cout << ID << ": Agregando al vecino: " << node1<<endl;
 		}
 		else if (node2 != ID && node1 == ID)
 		{
 			el = manifest.find(node2);
 			appendNeighbourNode(node2, el->second);
+			cout << ID << ": Agregando al vecino: " << node2 << endl;
 		}
 	}
 }
