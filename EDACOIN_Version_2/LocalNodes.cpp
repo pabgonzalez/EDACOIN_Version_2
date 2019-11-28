@@ -87,13 +87,15 @@ ALLEGRO_BITMAP* FullNodeInfo::graphNeighbours(void) {
 	}
 	al_set_target_bitmap(graph);
 	al_clear_to_color(al_map_rgb(255, 255, 255));
-	map<string, SocketType>::iterator it = fullNode->getNeighbours().begin();
+	map<string, SocketType> drawingNeighbours = fullNode->getNeighbours();
+	map<string, SocketType>::iterator it = drawingNeighbours.begin();
 	for (int i = 0; i < (fullNode->getNeighbours().size()); i++) {
 		double angle = i * 2.0 * 3.14 / fullNode->getNeighbours().size();
 		al_draw_line((PX_PER_UNIT * 5 / 2), (PX_PER_UNIT * 5 / 2),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), al_map_rgb(255, 0, 0), THICKNESS);
 		al_draw_filled_circle((PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), 50, al_map_rgb(100, 255, 100));
-		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle)-TEXT_OFFSETX, (PX_PER_UNIT * 5 / 2) - RAD * sin(angle)-TEXT_OFFSETY,NULL, "h"/*it->first.c_str()*/);
-
+		string id = it->first;
+		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle)-TEXT_OFFSETX, (PX_PER_UNIT * 5 / 2) - RAD * sin(angle)-TEXT_OFFSETY,NULL, id.c_str());
+		it++;
 	}
 	al_draw_filled_circle(PX_PER_UNIT * 5 / 2, PX_PER_UNIT * 5 / 2, 50, al_map_rgb(100, 255, 100));
 	al_draw_text(font, al_map_rgb(0, 0, 0), (PX_PER_UNIT * 5 / 2)-TEXT_OFFSETX , (PX_PER_UNIT * 5 / 2)-TEXT_OFFSETY,NULL,fullNode->getNodeID().c_str());

@@ -134,9 +134,9 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	ImGui::NewLine();
 
 	if (ImGui::Button("Grafo")) {
+		info.graphi = true;
 		if (info.graph == NULL) {
 			info.graph = info.graphNeighbours();
-			if (info.graph != NULL) { info.graphi = true; }
 		}
 	}
 
@@ -231,7 +231,9 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 		ImGui::NewLine();
 	}
 	if (info.graphi) {
-		ImGui::Begin("Graph");
+		bool closeGraph = info.graphi;
+		ImGui::Begin("Graph", &closeGraph);
+		info.graphi = closeGraph;
 		ImGui::Image(info.graph, ImVec2(al_get_bitmap_width(info.graph), al_get_bitmap_height(info.graph)));
 		ImGui::End();
 	}
