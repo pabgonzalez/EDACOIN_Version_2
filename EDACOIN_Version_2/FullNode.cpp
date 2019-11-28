@@ -59,7 +59,6 @@ void FullNode::p2pFSM() {
 		break;
 	case SENDING_LAYOUTS:
 		if (sendNextLayout() == 0) {
-			//No se que onda con los network_ready
 			state = NETWORK_CREATED;
 		}
 	}
@@ -179,6 +178,19 @@ json FullNode::generateBlockJson(string blockid)
 	j["merkleroot"] = blockChain.getBlockMerkleRoot(b);
 	j["nTx"] = blockChain.getBlockTransactionNumber(b);
 	return j;
+}
+
+string FullNode::generateBlockChainJsonString() {
+	string b = "[";
+	if (blockChain.getBlockchainSize() > 0) {
+		b += generateBlockJson(blockChain.getBlockId(0)).dump();
+		for (int i = 1; i < blockChain.getBlockchainSize(); i++) {
+			b += ",";
+			b += generateBlockJson(blockChain.getBlockId(i)).dump();
+		}
+	}
+	b += "]";
+	return b;
 }
 
 //generateBlockHeader genera un json (array de objectos), donde cada objeto es el header de cada bloque hasta el indicado por blockid
@@ -475,6 +487,33 @@ void FullNode::handleResponse() {
 						onlineNodes.insert((std::pair<string, SocketType>(id, sock)));
 						manifestNodes.erase(prevNodeIt);
 					}
+					else {	//Network_ready
+						appendNeighbourNode(prevNodeIt->first, prevNodeIt->second);
+						//Do something with existing layout: response["layout"];
+						json response = json::parse(response["blockchain"], nullptr, false);
+						if (response.is_discarded() == false) {
+							if (!j.empty() && j.is_array())
+							{
+								blockChain.clearBlockChain();
+								vector<string> vTx;
+								for (auto& element : j)
+								{
+									blockChain.appendBlock(createBlock(element));
+								}
+							}
+						}
+
+						json j = p2pAlgorithm(onlineNodes);
+						networkLayout = j.dump();
+
+						prevNodeIt = onlineNodes.begin();
+						nextNodeIt = onlineNodes.begin(); //Empiezo mandando layout al primer nodo
+
+						cout << ID << ": Received NETWORK_READY" << endl;
+						cout << "Network Layout: " << networkLayout << endl;
+
+						state = SENDING_LAYOUTS;
+					}
 				}
 			}
 			else if (getHttpURI() == "/path/NETWORK_LAYOUT") {
@@ -511,7 +550,8 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 
 					if (j.is_discarded() == false) {
 						cout << ID<<": Received Layout!" << endl;
-						addNeighboursFromLayout(j.dump());
+						networkLayout = j.dump();
+						addNeighboursFromLayout(networkLayout);
 						response = "{\"status\":false}";	//Esto representa Network Ready
 					}
 				}
@@ -522,16 +562,26 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 			//	//si NetworkReady toma lista y conecta con la actual
 		//	break;
 		case NETWORK_CREATED:
-			for (unsigned int i = 0; i < commands.size(); i++) {
-				if (method == "POST") {
-					json j = json::parse(commands[i], nullptr, false);
+			if (uri == "/path/PING") {
+				//Esto representa Network Ready
+				response = "{\"status\":true,\"layout\":";
+				response += networkLayout;
+				response += ",\"blockchain\":";
+				response += generateBlockChainJsonString();
+				response += "}";
+			}
+			else {
+				for (unsigned int i = 0; i < commands.size(); i++) {
+					if (method == "POST") {
+						json j = json::parse(commands[i], nullptr, false);
 
-					if (j.is_discarded() == false) {
-						response += handlePOSTcommand(j, uri, ip, port);
+						if (j.is_discarded() == false) {
+							response += handlePOSTcommand(j, uri, ip, port);
+						}
 					}
-				}
-				else if (method == "GET") {
-					response += handleGETcommand(commands[i], uri, ip, port);
+					else if (method == "GET") {
+						response += handleGETcommand(commands[i], uri, ip, port);
+					}
 				}
 			}
 			break;

@@ -30,6 +30,7 @@ public:
 	json generateBlockJson(string blockid);
 	json generateMerkleBlock(string blockid, string txid);
 	json generateBlockHeader(string blockid);
+	string generateBlockChainJsonString();
 
 	//crypto
 	bool validateTx(Transaction tx);
