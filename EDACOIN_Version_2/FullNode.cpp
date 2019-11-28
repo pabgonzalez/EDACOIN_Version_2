@@ -12,9 +12,7 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 	this->ID = ID;
 	this->neighbourNodes = neighbourNodes;
 
-
 	timer = al_create_timer(((rand() % 999) * 10.0 + 10.0) / 1000.0);
-	//timer = (rand() % 999) * 10 + 10;
 	state = IDLE;
 
 	Server* newserver = new Server(socket.port);
@@ -42,6 +40,8 @@ void FullNode::p2pFSM() {
 		if (al_get_timer_count(timer) >= 1) {
 			al_stop_timer(timer);
 			state = COLLECTING_NETWORK_MEMBERS;
+
+			cout << ID << " is the new team leader!" << endl;
 		}
 		break;
 	case COLLECTING_NETWORK_MEMBERS:
@@ -55,7 +55,9 @@ void FullNode::p2pFSM() {
 void FullNode::setManifestPath(string p) {
 	manifestPath = p;
 	manifestNodes = getNodesFromManifest();
-	pingNodeIt = manifestNodes.begin();
+	prevNodeIt = manifestNodes.begin();
+	nextNodeIt = manifestNodes.begin();
+	nextNodeIt++;	//Empiezo pingueando el segundo nodo
 }
 
 void FullNode::sendPing(SocketType s) {
@@ -64,15 +66,27 @@ void FullNode::sendPing(SocketType s) {
 
 int FullNode::sendNextPing() {
 	//Enviar proximo ping
-	if (isPerformingFetch() == false && getNewResponse() == false) {
-		if (pingNodeIt->first != ID) {
-			sendPing(pingNodeIt->second);
+	if (manifestNodes.size() > 0) {
+		if (isPerformingFetch() == false && getNewResponse() == false) {
+			if (nextNodeIt->first != ID) {
+				sendPing(nextNodeIt->second);
 
-			//Debug
-			cout << "Ping al vecino: " << pingNodeIt->first << endl;
+				prevNodeIt = nextNodeIt;
+				++nextNodeIt;
+				if (nextNodeIt == manifestNodes.end()) nextNodeIt = manifestNodes.begin();
+
+				//Debug
+				cout << "Ping al vecino: " << prevNodeIt->first << endl;
+			}
+			else {
+				prevNodeIt = nextNodeIt;
+				++nextNodeIt;
+				if (nextNodeIt == manifestNodes.end()) nextNodeIt = manifestNodes.begin();
+
+				cout << prevNodeIt->first << " is the leader, he needs no PING" << endl;
+				manifestNodes.erase(prevNodeIt);
+			}
 		}
-		++pingNodeIt;
-		if (pingNodeIt == manifestNodes.end()) pingNodeIt = manifestNodes.begin();
 	}
 
 	return manifestNodes.size();
@@ -399,16 +413,23 @@ void FullNode::handleResponse() {
 	if (getNewResponse()) {
 		cout << "Recibi la siguiente respuesta:" << endl;
 		cout << getResponse() << endl;
-		/*if (getHttpMethod() == "POST") {
+		if (getHttpMethod() == "POST") {
 			if (getHttpURI() == "/path/PING") {
-				json response(getResponse());
+				string r = getResponse();
+				json response = json::parse(r, nullptr, false);
+				if (response.is_discarded() == false && response.is_object()) {
+					if (response["status"] == false) {	//Network_not_ready
+						cout << prevNodeIt->first << " responded to PING" << endl;
+						manifestNodes.erase(prevNodeIt);
+					}
+				}
 			}
 		}
 		else if (getHttpMethod() == "GET") {
-			json response(n->getResponse());
+			//json response(n->getResponse());
 
 			//Received Block Header, do something
-		}*/
+		}
 		setNewResponse(false);
 	}
 }
@@ -419,7 +440,7 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 	switch (state) {
 		case IDLE:
 			if (uri == "/path/PING") {
-				response = "{ \"status\": false }";	//Esto representa Network Not Ready
+				response = "{\"status\":false}";	//Esto representa Network Not Ready
 				state = WAITING_LAYOUT;
 			}
 			break;
@@ -468,13 +489,18 @@ string FullNode::handleGETcommand(string command, string uri, string ip, int por
 				return j.dump();
 			}
 			else {
-				return "{\"result\":false,\"errorCode\":unknown_id}";
+				return "{\"result\":false,\"errorCode\":\"unknown_id\"}";
 			}
 		}
+	}
+	else if (uri == "/test/") {
+		return "{\"result\":false,\"errorCode\":\"test\"}";
 	}
 	else {
 		return "";
 	}
+
+	return "{\"result\":true,\"errorCode\":null}";
 }
 
 string FullNode::handlePOSTcommand(json j, string uri, string ip, int port) {
@@ -510,6 +536,9 @@ string FullNode::handlePOSTcommand(json j, string uri, string ip, int port) {
 	else if (uri == "/eda_coin/send_filter") {
 		string id = j["Id"];
 		subscriptors.insert(id);
+	}
+	else if (uri == "/test/") {
+		"{\"result\":false,\"errorCode\":\"test\"}";
 	}
 	else {
 		return "";
@@ -650,6 +679,7 @@ const char* FullNode:: hex_char_to_bin(char c)
 	case 'D': return "1101";
 	case 'E': return "1110";
 	case 'F': return "1111";
+	default: return "0000";
 	}
 }
 

@@ -22,9 +22,6 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 
 	AutoSeededRandomPool autoSeededRandomPool;
 	privateKey.Initialize(autoSeededRandomPool, ASN1::secp256k1());
-
-
-
 }
 
 Node::~Node() {
@@ -112,21 +109,25 @@ void Node::httpPost(string ip, int p, string addr, string msg, long timeout) {
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, msg.size());
 		curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, msg.c_str());
 
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, timeout);
+
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
-
-		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, timeout);
 
 		performingFetch = 1;
 	}
 }
 
 void Node::httpGet(string nodeid, string addr, string header) {
+	httpGet(neighbourNodes[nodeid].IP, neighbourNodes[nodeid].port, addr, header);
+}
+
+void Node::httpGet(string ip, int p, string addr, string header) {
 	httpResponse = "";
 	httpMethod = "GET";
 	httpURI = addr;
-	serverIP = neighbourNodes[nodeid].IP;
-	serverPort = neighbourNodes[nodeid].port;
+	serverIP = ip;
+	serverPort = p;
 
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
@@ -136,6 +137,7 @@ void Node::httpGet(string nodeid, string addr, string header) {
 		curl_multi_add_handle(multiHandle, curl);
 
 		string url = serverIP + ":" + to_string(serverPort);
+		//string url = "google.com";
 
 		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
 		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -160,8 +162,9 @@ bool Node::performFetch() {
 
 	if (performingFetch == 0) {
 		newResponse = true;
-		cout << "Fin del perform, se recibio:" << endl;
-		cout << httpResponse << endl;
+		//cout << "Fin del perform, se recibio:" << endl;
+		//cout << httpResponse << endl;
+
 		//Siempre realizamos el cleanup al final
 		curl_easy_cleanup(curl);
 	}
