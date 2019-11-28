@@ -10,8 +10,10 @@ FullNode::FullNode(SocketType socket, string ID, map<string, SocketType> neighbo
 	this->socket = socket;
 	this->ID = ID;
 	this->neighbourNodes = neighbourNodes;
-	pingStatus = false;
-	timer = (rand() % 999) * 10 + 10;
+
+
+	timer = al_create_timer(((rand() % 999) * 10.0 + 10.0) / 1000.0);
+	//timer = (rand() % 999) * 10 + 10;
 	state = IDLE;
 
 	Server* newserver = new Server(socket.port);
@@ -24,6 +26,52 @@ FullNode::~FullNode() {
 	for (unsigned int i = 0; i < servers.size(); i++) {
 		delete servers[i];
 	}
+	al_destroy_timer(timer);
+}
+
+void FullNode::p2pFSM() {
+	switch (state) {
+	case IDLE:
+		if(!al_get_timer_started(timer))
+			al_start_timer(timer);
+
+		if (al_get_timer_count(timer) >= 1) {
+			al_stop_timer(timer);
+			state = COLLECTING_NETWORK_MEMBERS;
+		}
+		break;
+	case COLLECTING_NETWORK_MEMBERS:
+		if (sendNextPing() == 0) {
+			//No se que onda con los network_ready
+			state = NETWORK_CREATED;
+		}
+	}
+}
+
+void FullNode::setManifestPath(string p) {
+	manifestPath = p;
+	manifestNodes = getNodesFromManifest();
+	pingNodeIt = manifestNodes.begin();
+}
+
+void FullNode::sendPing(SocketType s) {
+	httpPost(s.IP, s.port, "/path/PING", "Host:localhost", 5);	//Timeout 5ms
+}
+
+int FullNode::sendNextPing() {
+	//Enviar proximo ping
+	if (isPerformingFetch() == false && getNewResponse() == false) {
+		if (pingNodeIt->first != ID) {
+			sendPing(pingNodeIt->second);
+
+			//Debug
+			cout << "Ping al vecino: " << pingNodeIt->first << endl;
+		}
+		++pingNodeIt;
+		if (pingNodeIt == manifestNodes.end()) pingNodeIt = manifestNodes.begin();
+	}
+
+	return manifestNodes.size();
 }
 
 void FullNode::sendMerkleBlock(string nodeid, string blockid, string txid) {
@@ -31,7 +79,7 @@ void FullNode::sendMerkleBlock(string nodeid, string blockid, string txid) {
 		json j = generateMerkleBlock(blockid, txid);
 		string aux = j;
 
-		httpPost(nodeid, "/eda_coin/send_merkle_block/", j);
+		httpPost(nodeid, "/eda_coin/send_merkle_block/", aux);
 	}
 }
 
@@ -40,7 +88,7 @@ void FullNode::sendBlock(string nodeid, string blockid) {
 		json j = generateBlockJson(blockid);
 		string aux = j;
 
-		httpPost(nodeid, "/eda_coin/send_block/", j);
+		httpPost(nodeid, "/eda_coin/send_block/", aux);
 	}
 }
 
@@ -130,34 +178,6 @@ vector<string> FullNode::recursiveMerkleBlock(vector<MerkleNode> t, int pos)
 
 	return recursiveMerkleBlock(t, pos / 2);
 }
-
-void FullNode::p2pNetFSM() {
-	switch (state) {
-	case IDLE:
-		if (pingStatus == true)
-		{
-			//responde NETWORK NOT READY
-			state = WAITING_LAYOUT;
-		}
-		else {
-			this_thread::sleep_for(chrono::milliseconds(1));
-			if (!(--timer))
-				state = COLLECTING_NETWORK_MEMBERS;
-		}
-		break;
-		//case WAITING_LAYOUT:
-		//	//epera mensaje NetwokLayout
-		//	//responde HTTP OK
-		//	//agrega vecinos
-		//case COLLECTING_NETWORK_MEMBERS:
-		//	//envia PING a cada nodo
-		//	//si NetworkNotReady agrega nodo a lista
-		//	//si NetworkReady toma lista y conecta con la actual
-		//case NETWORK_CREATED:
-		//	//
-	}
-}
-
 
 json FullNode::p2pAlgorithm(map<string, SocketType> Nodes)
 {
@@ -371,20 +391,63 @@ void FullNode::cycleConnections() {
 	}
 }
 
+void FullNode::handleResponse() {
+	if (getNewResponse()) {
+		cout << "Recibi la siguiente respuesta:" << endl;
+		cout << getResponse() << endl;
+		/*if (getHttpMethod() == "POST") {
+			if (getHttpURI() == "/path/PING") {
+				json response(getResponse());
+			}
+		}
+		else if (getHttpMethod() == "GET") {
+			json response(n->getResponse());
+
+			//Received Block Header, do something
+		}*/
+		setNewResponse(false);
+	}
+}
+
 string FullNode::respondToCommands(vector<string> commands, string uri, string method, string ip, int port) {
 	string response = "";
 
-	for (unsigned int i = 0; i < commands.size(); i++) {
-		if (method == "POST") {
-			json j = json::parse(commands[i], nullptr, false);
-
-			if (j.is_discarded() == false) {
-				response += handlePOSTcommand(j, uri, ip, port);
+	switch (state) {
+		case IDLE:
+			if (uri == "/path/PING") {
+				response = "{ \"status\": false }";	//Esto representa Network Not Ready
+				state = WAITING_LAYOUT;
 			}
-		}
-		else if (method == "GET") {
-			response += handleGETcommand(commands[i], uri, ip, port);
-		}
+			break;
+		case WAITING_LAYOUT:
+			if (uri == "/path/NETWORK_LAYOUT") {
+				for (unsigned int i = 0; i < commands.size(); i++) {
+					json j = json::parse(commands[i], nullptr, false);
+
+					if (j.is_discarded() == false) {
+						//response += PARSEAR LAYOUT
+					}
+				}
+			}
+			break;
+		//case COLLECTING_NETWORK_MEMBERS:
+			//	//si NetworkNotReady agrega nodo a lista
+			//	//si NetworkReady toma lista y conecta con la actual
+		//	break;
+		case NETWORK_CREATED:
+			for (unsigned int i = 0; i < commands.size(); i++) {
+				if (method == "POST") {
+					json j = json::parse(commands[i], nullptr, false);
+
+					if (j.is_discarded() == false) {
+						response += handlePOSTcommand(j, uri, ip, port);
+					}
+				}
+				else if (method == "GET") {
+					response += handleGETcommand(commands[i], uri, ip, port);
+				}
+			}
+			break;
 	}
 
 	return response;

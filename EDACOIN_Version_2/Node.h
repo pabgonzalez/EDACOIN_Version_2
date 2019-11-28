@@ -33,9 +33,13 @@ public:
 	string getNodeID();
 	string getNodeIP();
 	int getNodePort();
+	bool getNewResponse() { return newResponse; }
 	SocketType getNeighbourSockets(string ID);
 	string getResponse() { return httpResponse; }
 	string getHttpMethod() { return httpMethod; }
+	string getServerIP() { return serverIP; }
+	int getServerPort() { return serverPort; }
+	string getHttpURI() { return httpURI; }
 	bool isPerformingFetch() { return (performingFetch == 0)? false : true; }
 	map<string, SocketType> getNeighbours() { return neighbourNodes; }
 	map<string, SocketType> getNodesFromManifest();
@@ -43,13 +47,15 @@ public:
 	//Senders (POST)
 	void sendTx(string nodeid, Transaction tx);
 	void httpPost(string nodeid, string addr, string msg);
+	void httpPost(string ip, int p, string addr, string msg, long timeout = 10000);
 
 	//Requesters (GET)
 	void httpGet(string nodeid, string addr, string header = "");
 
 	//setters
 	void setNodeSocket(SocketType socket);
-	void setManifestPath(string p) { manifestPath = p; }
+	void setManifestPath(string p);
+	void setNewResponse(bool b) { newResponse = b; }
 
 	//appenders
 	void appendNeighbourNode(string neighbourID, SocketType neighbourSocket);
@@ -73,9 +79,14 @@ protected:
 	//Client side
 	CURL* curl;
 	CURLM* multiHandle;
+	bool newResponse;	//Hay una respuesta nueva para atender
 	string httpResponse;
 	int performingFetch;
 	string httpMethod;	//Vale POST O GET
+	string httpURI;
+	string serverIP;
+	int serverPort;
 
 	string manifestPath;	//Lista de nodos de la red
+	map<string, SocketType> manifestNodes;	//Lista de nodos del manifiesto
 };

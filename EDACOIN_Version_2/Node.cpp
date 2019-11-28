@@ -13,6 +13,7 @@ Node::Node(SocketType socket, string ID, map<string, SocketType> neighbourNodes)
 	this->ID = ID;
 
 	//Client
+	newResponse = false;
 	httpResponse = "";
 	httpMethod = "";
 	performingFetch = 0;
@@ -33,6 +34,11 @@ string Node::getNodeIP() {
 
 int Node::getNodePort() {
 	return socket.port;
+}
+
+void Node::setManifestPath(string p) {
+	manifestPath = p;
+	manifestNodes = getNodesFromManifest();
 }
 
 map<string, SocketType> Node::getNodesFromManifest() {
@@ -69,8 +75,15 @@ void Node::sendTx(string nodeid, Transaction tx) {
 }
 
 void Node::httpPost(string nodeid, string addr, string msg) {
+	httpPost(neighbourNodes[nodeid].IP, neighbourNodes[nodeid].port, addr, msg);
+}
+
+void Node::httpPost(string ip, int p, string addr, string msg, long timeout) {
 	httpResponse = "";
 	httpMethod = "POST";
+	httpURI = addr;
+	serverIP = ip;
+	serverPort = p;
 
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
@@ -79,12 +92,12 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 		//Attacheo el easy handle para manejar una conexion no bloqueante.
 		curl_multi_add_handle(multiHandle, curl);
 
-		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
+		string url = ip + ":" + to_string(p);
 
 		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
 		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP);
-		
+
 		struct curl_slist* list = NULL;
 		list = curl_slist_append(list, "Content-Type: application/x-www-form-urlencoded;charset=UTF-8");
 
@@ -95,6 +108,8 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &httpResponse);
 
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, timeout);
+
 		performingFetch = 1;
 	}
 }
@@ -102,6 +117,9 @@ void Node::httpPost(string nodeid, string addr, string msg) {
 void Node::httpGet(string nodeid, string addr, string header) {
 	httpResponse = "";
 	httpMethod = "GET";
+	httpURI = addr;
+	serverIP = neighbourNodes[nodeid].IP;
+	serverPort = neighbourNodes[nodeid].port;
 
 	curl = curl_easy_init();
 	multiHandle = curl_multi_init();
@@ -110,7 +128,7 @@ void Node::httpGet(string nodeid, string addr, string header) {
 		//Attacheo el easy handle para manejar una conexion no bloqueante.
 		curl_multi_add_handle(multiHandle, curl);
 
-		string url = neighbourNodes[nodeid].IP + ":" + to_string(neighbourNodes[nodeid].port);
+		string url = serverIP + ":" + to_string(serverPort);
 
 		curl_easy_setopt(curl, CURLOPT_URL, (url + addr).c_str());
 		//curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -134,6 +152,9 @@ bool Node::performFetch() {
 	curl_multi_perform(multiHandle, &performingFetch);
 
 	if (performingFetch == 0) {
+		newResponse = true;
+		cout << "Fin del perform, se recibio:" << endl;
+		cout << httpResponse << endl;
 		//Siempre realizamos el cleanup al final
 		curl_easy_cleanup(curl);
 	}

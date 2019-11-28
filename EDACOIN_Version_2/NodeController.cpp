@@ -95,22 +95,11 @@ void NodeController::cycle(void) {
 			n->performFetch();
 		}
 		else {
-			if (n->getHttpMethod() == "POST") {
-				/*json response(n->getResponse());
-				if (response["result"] == true) {
-					cout << "No error in response" << endl;
-					//Yay for me
-				}
-				else {
-					cout << "Error in response";
-				}*/
-			}
-			else if (n->getHttpMethod() == "GET") {
-				json response(n->getResponse());
-
-				//Received Block Header, do something
-			}
+			n->handleResponse();
 		}
+
+		//p2p
+		n->p2pFSM();
 
 		//Server
 		n->cycleConnections();
@@ -230,6 +219,17 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 				}
 				n->getBlockchain().setBlockSelected(i, false);
 			}
+		}
+
+		ImGui::NewLine();
+	}
+
+	if (ImGui::CollapsingHeader("Ver Vecinos")) {
+		map<string, SocketType> neighbours = n->getNeighbours();
+		map<string, SocketType>::iterator it;
+		for (it = neighbours.begin(); it != neighbours.end(); ++it)
+		{
+			ImGui::Text((it->first).c_str());
 		}
 
 		ImGui::NewLine();
