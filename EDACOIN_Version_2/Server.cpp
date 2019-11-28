@@ -37,7 +37,7 @@ bool Server::acceptConnection() {
 	serverAcceptor->accept(*serverSocket, error);
 
 	if (error.value() != WSAEWOULDBLOCK) {
-		cout << "Se acepto una conexion!" << endl;
+		//cout << "Se acepto una conexion!" << endl; //Debug
 
 		//serverSocket->non_blocking(true);
 		readingRequest = true;
@@ -63,8 +63,9 @@ bool Server::readRequest() {
 			clientPort = serverSocket->remote_endpoint().port();
 			parseHttpRequest(receivedMessage);
 
-			cout << "Se recibio el siguiente mensaje:" << endl << receivedMessage << endl;
-			cout << "Fue emitido desde el IP: " << clientIP << " Puerto: " << clientPort << endl;
+			//Debug
+			//cout << "Se recibio el siguiente mensaje:" << endl << receivedMessage << endl;
+			//cout << "Fue emitido desde el IP: " << clientIP << " Puerto: " << clientPort << endl;
 
 			return true;
 		}
@@ -79,7 +80,7 @@ bool Server::writeResponse() {
 		len = serverSocket->write_some(boost::asio::buffer(response.c_str(), strlen(response.c_str())), error);
 
 		if (error.value() != WSAEWOULDBLOCK) {
-			cout << "Enviando el siguiente mensaje:" << endl << response << endl;
+			//cout << "Enviando el siguiente mensaje:" << endl << response << endl; //Debug
 			writingResponse = false;
 			return true;
 		}
