@@ -92,7 +92,7 @@ ALLEGRO_BITMAP* FullNodeInfo::graphNeighbours(void) {
 		double angle = i * 2.0 * 3.14 / fullNode->getNeighbours().size();
 		al_draw_line((PX_PER_UNIT * 5 / 2), (PX_PER_UNIT * 5 / 2),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), al_map_rgb(255, 0, 0), THICKNESS);
 		al_draw_filled_circle((PX_PER_UNIT * 5 / 2) + RAD * cos(angle), (PX_PER_UNIT * 5 / 2) - RAD * sin(angle), 50, al_map_rgb(100, 255, 100));
-		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle)-TEXT_OFFSETX, (PX_PER_UNIT * 5 / 2) - RAD * sin(angle)-TEXT_OFFSETY,NULL, "prueba"/*it->first.c_str()*/);
+		al_draw_text(font,al_map_rgb(0,0,0),(PX_PER_UNIT * 5 / 2) + RAD * cos(angle)-TEXT_OFFSETX, (PX_PER_UNIT * 5 / 2) - RAD * sin(angle)-TEXT_OFFSETY,NULL, "h"/*it->first.c_str()*/);
 
 	}
 	al_draw_filled_circle(PX_PER_UNIT * 5 / 2, PX_PER_UNIT * 5 / 2, 50, al_map_rgb(100, 255, 100));

@@ -286,12 +286,13 @@ void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 	}
 
 	if (ImGui::CollapsingHeader("Modificar Vecino")) {
+		bool selected = false;
 		ImGui::Text("Vecino a modificar: ");
 		map<string, SocketType> neighbours = n->getNeighbours();
 		map<string, SocketType>::iterator it;
 		for (it = neighbours.begin(); it != neighbours.end(); ++it)
 		{
-			bool selected = (info.oldNeighbourID == it->first) ? true : false;
+			 selected = (info.oldNeighbourID == it->first) ? true : false;
 			ImGui::Checkbox((it->first).c_str(), &selected);
 			info.oldNeighbourID = (selected) ? it->first : info.oldNeighbourID;
 		}
@@ -308,8 +309,10 @@ void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 		info.newport = newport;
 		info.newid = newid;
 		if (ImGui::Button("Modificar vecino")) {
-			n->removeNeighbourNode(info.oldNeighbourID);
-			n->appendNeighbourNode(newid, { newip, newport });
+			if (selected) {
+				n->removeNeighbourNode(info.oldNeighbourID);
+				n->appendNeighbourNode(newid, { newip, newport });
+			}
 		}
 		ImGui::NewLine();
 	}
