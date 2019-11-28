@@ -46,7 +46,7 @@ public:
 	//Server
 	void cycleConnections();
 
-private:
+protected:
 	//recursives
 	vector<string> recursiveMerkleBlock(vector<MerkleNode> t, int pos);
 
