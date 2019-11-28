@@ -649,7 +649,7 @@ const char* FullNode:: hex_char_to_bin(char c)
 	case 'C': return "1100";
 	case 'D': return "1101";
 	case 'E': return "1110";
-	case 'F': return "1111";
+	case 'F': return "1111"; 
 	}
 }
 
