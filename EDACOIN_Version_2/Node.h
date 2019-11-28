@@ -59,6 +59,7 @@ public:
 	void httpPost(string ip, int p, string addr, string msg, long timeout = 10000);
 
 	//Requesters (GET)
+	void httpGet(string ip, int p, string addr, string header = "");
 	void httpGet(string nodeid, string addr, string header = "");
 
 	//setters

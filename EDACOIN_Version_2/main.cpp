@@ -33,6 +33,9 @@ int main() {
 		//obsManager.addObserver(&view);
 
 		LocalNodes localNodes("manifest.json");
+		localNodes.addFullNode({"127.0.0.1", 1000}, "Jorge");
+		localNodes.addFullNode({"127.0.0.1", 1001 }, "Ricardo");
+		localNodes.addFullNode({"127.0.0.1", 1002 }, "Ernesto");
 		NodeController nodeControl(localNodes);
 		obsManager.addObserver(&nodeControl);
 
