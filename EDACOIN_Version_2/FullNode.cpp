@@ -748,3 +748,25 @@ string FullNode:: hex_str_to_bin_str(const std::string& hex)
 		bin += hex_char_to_bin(hex[i]);
 	return bin;
 }
+
+void FullNode::addNeighboursFromLayout(string layout)
+{
+	int begin = layout.rfind(ID);
+	if (begin == string::npos)
+	{
+		cout << "Error:" << ID << "not found in layout" << endl;
+		return;
+	}
+	int target1 = 0, target2 = 0;
+	char node1[64];
+	char node2[64];
+	while (target1 != string::npos && target2 != string::npos)
+	{
+		target1 = layout.find("target1", target1);
+		target2 = layout.find("target2", target2);
+		layout.copy(node1, 64, target1 + 2);
+		layout.copy(node2, 64, target2 + 2);
+		if (node1 != ID && node2 == ID) appendNeighbourNode(node1, { "", 0 }); //falta el SOCKET
+		else if (node2 != ID && node1 == ID) appendNeighbourNode(node2, { "", 0 });
+	}
+}
