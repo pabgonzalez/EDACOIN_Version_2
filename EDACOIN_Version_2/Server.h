@@ -6,6 +6,10 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#define EXPIRE_TIME     30                  // En segundos
+#define HOST_NAME       "localhost"         // Host named esperado
+#define HOST_NAME_LEN   9
+
 using namespace std;
 
 class Server
@@ -30,6 +34,7 @@ public:
 private:
 	void parseHttpRequest(string request);
 	void findURIandMethod(string command, string& uri, string& method);
+	char* getCurrentDateString(int delay = 0);
 
 	string clientIP;
 	int clientPort;

@@ -98,7 +98,7 @@ void NodeController::cycle(void) {
 			n->handleResponse();
 		}
 
-		//p2p
+		//p2p fsm
 		n->p2pFSM();
 
 		//Server
@@ -139,6 +139,9 @@ void NodeController::cycle(void) {
 void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	FullNode* n = info.fullNode;
 	
+	if(ImGui::Button("Prueba")){
+		n->httpGet("127.0.0.1", 1001, "/test/");
+	}
 	
 	//Full Node GUI
 	ImGui::Text("Informacion del Nodo");
@@ -154,13 +157,14 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	sprintf(id, info.neighbourID.c_str());
 	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
 	info.neighbourID = id;
+	ImGui::NewLine();
+
 	if (ImGui::Button("Grafo")) {
 		if (info.graph == NULL) {
 			info.graph = info.graphNeighbours();
-			if (info.graph  != NULL) { info.graphi = true; }
+			if (info.graph != NULL) { info.graphi = true; }
 		}
 	}
-	ImGui::NewLine();
 
 	if (ImGui::CollapsingHeader("Realizar Transferencia")) {
 		int amount = info.amount;
@@ -286,12 +290,13 @@ void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 	}
 
 	if (ImGui::CollapsingHeader("Modificar Vecino")) {
+		bool selected = false;
 		ImGui::Text("Vecino a modificar: ");
 		map<string, SocketType> neighbours = n->getNeighbours();
 		map<string, SocketType>::iterator it;
 		for (it = neighbours.begin(); it != neighbours.end(); ++it)
 		{
-			bool selected = (info.oldNeighbourID == it->first) ? true : false;
+			 selected = (info.oldNeighbourID == it->first) ? true : false;
 			ImGui::Checkbox((it->first).c_str(), &selected);
 			info.oldNeighbourID = (selected) ? it->first : info.oldNeighbourID;
 		}
@@ -308,8 +313,10 @@ void NodeController::showSPVNodeGUI(SPVNodeInfo& info) {
 		info.newport = newport;
 		info.newid = newid;
 		if (ImGui::Button("Modificar vecino")) {
-			n->removeNeighbourNode(info.oldNeighbourID);
-			n->appendNeighbourNode(newid, { newip, newport });
+			if (selected) {
+				n->removeNeighbourNode(info.oldNeighbourID);
+				n->appendNeighbourNode(newid, { newip, newport });
+			}
 		}
 		ImGui::NewLine();
 	}

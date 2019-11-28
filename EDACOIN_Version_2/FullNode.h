@@ -82,7 +82,8 @@ protected:
 	set<string> subscriptors;
 	vector<Transaction> pendingTx;
 
-	map<string, SocketType>::iterator pingNodeIt;	//Iterador al nodo que estoy pingeando
+	map<string, SocketType>::iterator prevNodeIt;	//Iterador al nodo que recien pinguie
+	map<string, SocketType>::iterator nextNodeIt;	//Iterador al nodo que voy a pingear
 	map<string, SocketType> onlineNodes;	//Lista de nodos que respondieron al ping
 	vector<Transaction> utxo;
 };
