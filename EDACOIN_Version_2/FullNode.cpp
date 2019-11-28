@@ -765,13 +765,25 @@ void FullNode::addNeighboursFromLayout(string layout)
 	int target1 = 0, target2 = 0;
 	char node1[64];
 	char node2[64];
+	map<string, SocketType>::iterator el;
+	map<string, SocketType> manifest = getNodesFromManifest();
+
 	while (target1 != string::npos && target2 != string::npos)
 	{
+		
 		target1 = layout.find("target1", target1);
 		target2 = layout.find("target2", target2);
 		layout.copy(node1, 64, target1 + 2);
 		layout.copy(node2, 64, target2 + 2);
-		if (node1 != ID && node2 == ID) appendNeighbourNode(node1, { "", 0 }); //falta el SOCKET
-		else if (node2 != ID && node1 == ID) appendNeighbourNode(node2, { "", 0 });
+		if (node1 != ID && node2 == ID)
+		{
+			el = manifest.find(node1);
+			appendNeighbourNode(node1, el->second); 
+		}
+		else if (node2 != ID && node1 == ID)
+		{
+			el = manifest.find(node2);
+			appendNeighbourNode(node2, el->second);
+		}
 	}
 }
