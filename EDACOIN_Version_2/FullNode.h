@@ -6,7 +6,7 @@
 
 using namespace std;
 
-using p2pstate = enum { IDLE = 0, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, NETWORK_CREATED };
+using p2pstate = enum { IDLE = 0, WAITING_LAYOUT, COLLECTING_NETWORK_MEMBERS, SENDING_LAYOUTS, NETWORK_CREATED };
 
 class FullNode : public Node
 {
@@ -22,7 +22,7 @@ public:
 
 	//senders
 	void sendPing(SocketType s);
-	int sendNextPing(); //Envia un Ping uno a uno a todos los restantes y devuelve cuantos faltan responder
+	void sendLayout(SocketType s);
 	void sendMerkleBlock(string nodeid, string blockid, string txid);
 	void sendBlock(string nodeid, string blockid);
 
@@ -59,6 +59,10 @@ private:
 	bool checkFullRare(vector<vector<bool>> m, int n, int i);
 	bool checkFullEpic(vector<vector<bool>> m, int n, int i);
 
+	int sendNextPing(); //Envia un Ping uno a uno a todos los restantes y devuelve cuantos faltan responder
+	int sendNextLayout();	//Envia el layout al proximo nodo de los que resten
+	void addNeighboursFromLayout(string layout) {}; //TO-DO
+
 	//flooding
 	void floodTransaction(Transaction tx, string ip, int port);
 	void floodBlock(Block b, string ip, int port);
@@ -82,8 +86,9 @@ private:
 	set<string> subscriptors;
 	vector<Transaction> pendingTx;
 
-	map<string, SocketType>::iterator prevNodeIt;	//Iterador al nodo que recien pinguie
-	map<string, SocketType>::iterator nextNodeIt;	//Iterador al nodo que voy a pingear
+	map<string, SocketType>::iterator prevNodeIt;	//Iterador al nodo que recien pinguie/mande layout
+	map<string, SocketType>::iterator nextNodeIt;	//Iterador al nodo que voy a pingear/mandar layout
 	map<string, SocketType> onlineNodes;	//Lista de nodos que respondieron al ping
+	string networkLayout;
 	vector<Transaction> utxo;
 };

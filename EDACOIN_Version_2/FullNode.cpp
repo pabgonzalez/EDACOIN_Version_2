@@ -34,7 +34,7 @@ FullNode::~FullNode() {
 void FullNode::p2pFSM() {
 	switch (state) {
 	case IDLE:
-		if(!al_get_timer_started(timer))
+		if (!al_get_timer_started(timer))
 			al_start_timer(timer);
 
 		if (al_get_timer_count(timer) >= 1) {
@@ -46,6 +46,19 @@ void FullNode::p2pFSM() {
 		break;
 	case COLLECTING_NETWORK_MEMBERS:
 		if (sendNextPing() == 0) {
+			json j = p2pAlgorithm(onlineNodes);
+			networkLayout = j.dump();
+
+			prevNodeIt = onlineNodes.begin();
+			nextNodeIt = onlineNodes.begin(); //Empiezo mandando layout al primer nodo
+
+			cout << "Network Layout: " << networkLayout << endl;
+
+			state = SENDING_LAYOUTS;
+		}
+		break;
+	case SENDING_LAYOUTS:
+		if (sendNextLayout() == 0) {
 			//No se que onda con los network_ready
 			state = NETWORK_CREATED;
 		}
@@ -84,12 +97,51 @@ int FullNode::sendNextPing() {
 				if (nextNodeIt == manifestNodes.end()) nextNodeIt = manifestNodes.begin();
 
 				cout << prevNodeIt->first << " is the leader, he needs no PING" << endl;
+				string id = prevNodeIt->first;
+				SocketType sock = prevNodeIt->second;
+				onlineNodes.insert((std::pair<string, SocketType>(id, sock)));
 				manifestNodes.erase(prevNodeIt);
 			}
 		}
 	}
 
 	return manifestNodes.size();
+}
+
+int FullNode::sendNextLayout() {
+	//Enviar proximo layout
+	if (onlineNodes.size() > 0) {
+		if (isPerformingFetch() == false && getNewResponse() == false) {
+			if (nextNodeIt->first != ID) {
+				sendLayout(nextNodeIt->second);
+
+				prevNodeIt = nextNodeIt;
+				++nextNodeIt;
+				if (nextNodeIt == onlineNodes.end()) nextNodeIt = onlineNodes.begin();
+
+				//Debug
+				cout << "Layout al vecino: " << prevNodeIt->first << endl;
+			}
+			else {
+				prevNodeIt = nextNodeIt;
+				++nextNodeIt;
+				if (nextNodeIt == onlineNodes.end()) nextNodeIt = onlineNodes.begin();
+
+				cout << prevNodeIt->first << " is the leader, he needs no LAYOUT" << endl;
+				string id = prevNodeIt->first;
+				SocketType sock = prevNodeIt->second;
+				onlineNodes.erase(prevNodeIt);
+
+				addNeighboursFromLayout(networkLayout);
+			}
+		}
+	}
+
+	return onlineNodes.size();
+}
+
+void FullNode::sendLayout(SocketType s) {
+	httpPost(s.IP, s.port, "/path/NETWORK_LAYOUT", "Host:localhost", 5);	//Timeout 5ms
 }
 
 void FullNode::sendMerkleBlock(string nodeid, string blockid, string txid) {
@@ -420,6 +472,9 @@ void FullNode::handleResponse() {
 				if (response.is_discarded() == false && response.is_object()) {
 					if (response["status"] == false) {	//Network_not_ready
 						cout << prevNodeIt->first << " responded to PING" << endl;
+						string id = prevNodeIt->first;
+						SocketType sock = prevNodeIt->second;
+						onlineNodes.insert((std::pair<string, SocketType>(id, sock)));
 						manifestNodes.erase(prevNodeIt);
 					}
 				}
@@ -450,7 +505,9 @@ string FullNode::respondToCommands(vector<string> commands, string uri, string m
 					json j = json::parse(commands[i], nullptr, false);
 
 					if (j.is_discarded() == false) {
-						//response += PARSEAR LAYOUT
+						cout << ID<<": Received Layout!" << endl;
+						addNeighboursFromLayout(j.dump());
+						response = "{\"status\":true}";	//Esto representa Network Ready
 					}
 				}
 			}
