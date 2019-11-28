@@ -139,24 +139,12 @@ void NodeController::cycle(void) {
 void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 	FullNode* n = info.fullNode;
 	
-	if(ImGui::Button("Prueba")){
-		n->httpGet("127.0.0.1", 1001, "/test/");
-	}
-	
 	//Full Node GUI
 	ImGui::Text("Informacion del Nodo");
 	ImGui::Separator();
 	ImGui::Text(("ID: " + n->getNodeID()).c_str());
 	ImGui::Text(("IP: " + n->getNodeIP()).c_str());
 	ImGui::Text(("Puerto: " + to_string(n->getNodePort())).c_str());
-	ImGui::NewLine();
-	ImGui::Separator();
-	ImGui::Text("Conectarse con otro nodo");
-	ImGui::Separator();
-	char id[50];
-	sprintf(id, info.neighbourID.c_str());
-	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
-	info.neighbourID = id;
 	ImGui::NewLine();
 
 	if (ImGui::Button("Grafo")) {
@@ -165,6 +153,17 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 			if (info.graph != NULL) { info.graphi = true; }
 		}
 	}
+
+	ImGui::Separator();
+	
+	/*ImGui::Text("Conectarse con otro nodo");
+	ImGui::Separator();
+	char id[50];
+	sprintf(id, info.neighbourID.c_str());
+	ImGui::InputText("Ingresar ID de nodo vecino", id, sizeof(id));
+	info.neighbourID = id;
+	ImGui::NewLine();
+	*/
 
 	if (ImGui::CollapsingHeader("Realizar Transferencia")) {
 		int amount = info.amount;
@@ -180,7 +179,7 @@ void NodeController::showFullNodeGUI(FullNodeInfo& info) {
 			vector<voutType> vout;
 			vout.push_back({ info.receiver, amount });
 			Transaction tx = { "txid-dummy", vin.size(), vin, vout.size(), vout };
-			n->sendTx(id, tx);
+			n->floodTransaction(tx, n->getNodeIP(), n->getNodePort());
 		}
 		ImGui::NewLine();
 	}

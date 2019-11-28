@@ -26,6 +26,10 @@ public:
 	void sendMerkleBlock(string nodeid, string blockid, string txid);
 	void sendBlock(string nodeid, string blockid);
 
+	//flooding
+	void floodTransaction(Transaction tx, string ip, int port);
+	void floodBlock(Block b, string ip, int port);
+
 	//writters
 	json generateBlockJson(string blockid);
 	json generateMerkleBlock(string blockid, string txid);
@@ -63,10 +67,6 @@ protected:
 	int sendNextPing(); //Envia un Ping uno a uno a todos los restantes y devuelve cuantos faltan responder
 	int sendNextLayout();	//Envia el layout al proximo nodo de los que resten
 	void addNeighboursFromLayout(string layout);
-
-	//flooding
-	void floodTransaction(Transaction tx, string ip, int port);
-	void floodBlock(Block b, string ip, int port);
 
 	//crypto
 	const char* hex_char_to_bin(char c);

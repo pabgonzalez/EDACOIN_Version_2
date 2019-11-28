@@ -75,6 +75,8 @@ void Node::sendTx(string nodeid, Transaction tx) {
 		string aux = j.dump();
 
 		httpPost(nodeid, "/eda_coin/send_tx/", aux);
+
+		cout << "Sending Tx from " << ID << " to " << nodeid << endl;
 	}
 }
 
